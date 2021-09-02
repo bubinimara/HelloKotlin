@@ -1,5 +1,6 @@
 package com.example.hellokotlin.ui.login
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.LoginFragmentBinding
+import com.example.hellokotlin.ui.main.MainActivity
 
 class LoginFragment : Fragment() {
 
@@ -64,14 +66,16 @@ class LoginFragment : Fragment() {
             }
             is Resource.Error -> {
                 showLoading(false)
-                showMessage("Some error occurs")
+                showMessage("Some error occurs (${resource.error})")
             }
         }
 
     }
 
     private fun gotoMain() {
-        showMessage("Goto main")
+        val intent = Intent(context,MainActivity::class.java)
+        startActivity(intent)
+        activity?.finish()
     }
 
     private fun showMessage(message: String) {

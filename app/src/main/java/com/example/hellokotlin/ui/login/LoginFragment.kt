@@ -1,4 +1,4 @@
-package com.example.hellokotlin.ui.main
+package com.example.hellokotlin.ui.login
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,20 +10,20 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
-import com.example.hellokotlin.databinding.MainFragmentBinding
+import com.example.hellokotlin.databinding.LoginFragmentBinding
 
-class MainFragment : Fragment() {
+class LoginFragment : Fragment() {
 
     companion object {
-        fun newInstance() = MainFragment()
+        fun newInstance() = LoginFragment()
     }
 
-    private lateinit var viewBinding: MainFragmentBinding
-    private lateinit var viewModel: MainViewModel
+    private lateinit var viewBinding: LoginFragmentBinding
+    private lateinit var viewModel: LoginViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
-        viewBinding = MainFragmentBinding.inflate(inflater,container,false)
+        viewBinding = LoginFragmentBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
 
@@ -47,7 +47,7 @@ class MainFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
 
 
         viewModel.data.observe(this,  Observer{ r->
@@ -71,7 +71,7 @@ class MainFragment : Fragment() {
     }
 
     private fun gotoMain() {
-        TODO("Not yet implemented")
+        showMessage("Goto main")
     }
 
     private fun showMessage(message: String) {

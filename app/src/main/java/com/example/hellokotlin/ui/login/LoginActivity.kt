@@ -1,17 +1,17 @@
-package com.example.hellokotlin
+package com.example.hellokotlin.ui.login
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import com.example.hellokotlin.ui.main.MainFragment
+import com.example.hellokotlin.R
 
-class MainActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main_activity)
+        setContentView(R.layout.login_activity)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
+                    .replace(R.id.container, LoginFragment.newInstance())
                     .commitNow()
         }
     }

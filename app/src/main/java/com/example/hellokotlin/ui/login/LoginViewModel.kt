@@ -1,4 +1,4 @@
-package com.example.hellokotlin.ui.main
+package com.example.hellokotlin.ui.login
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -6,7 +6,7 @@ import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
 
-class MainViewModel : ViewModel() {
+class LoginViewModel : ViewModel() {
 
     var dataRepository:DataRepository = DataRepository()
 

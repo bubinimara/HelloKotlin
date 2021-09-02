@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
 
 class MainFragment : Fragment() {
@@ -28,12 +30,12 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewBinding.button.setOnClickListener(View.OnClickListener {
-            showProgress(true)
+            showLoading(true)
             viewModel.login(viewBinding.username.text.toString(), viewBinding.password.text.toString())
         })
     }
 
-    private fun showProgress(isShoing: Boolean) {
+    private fun showLoading(isShoing: Boolean) {
         if(isShoing){
             viewBinding.group.visibility = ViewGroup.GONE
             viewBinding.progress.visibility = ViewGroup.VISIBLE
@@ -46,14 +48,30 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        viewModel.user.observe(this,  Observer{ user->
-            showProgress(false)
-            if(user == null){
-                showMessage("Invalid username or password")
-            }else {
-                showMessage("User is ${user.name}")
-            }
+
+
+        viewModel.data.observe(this,  Observer{ r->
+            renderView(r)
         })
+    }
+
+    private fun renderView(resource: Resource<User>?) {
+        when(resource){
+            is Resource.Loading -> {showLoading(true)}
+            is Resource.Success -> {
+                showLoading(false)
+                gotoMain()
+            }
+            is Resource.Error -> {
+                showLoading(false)
+                showMessage("Some error occurs")
+            }
+        }
+
+    }
+
+    private fun gotoMain() {
+        TODO("Not yet implemented")
     }
 
     private fun showMessage(message: String) {

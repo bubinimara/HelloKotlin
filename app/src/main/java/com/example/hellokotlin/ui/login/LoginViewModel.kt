@@ -17,15 +17,6 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun switchUser(username: String) {
-        var  resource = dataRepository.login(username,username)
-        when(resource){
-            is Resource.Loading -> {}
-            is Resource.Success -> {}
-            is Resource.Error -> {}
-        }
-    }
-
     fun login(username: String, password: String) {
         data.value = dataRepository.login(username, password)
     }

@@ -1,5 +1,6 @@
 package com.example.hellokotlin.data
 
+import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 
 
@@ -15,6 +16,13 @@ class DataRepository {
 
         if(username.equals(password))
             return Resource.Success(User(username))
+        return Resource.Success(null)
+    }
+
+    fun getMovies():Resource<List<Movie>>{
+        return Resource.Success(emptyList())
+    }
+    fun getLastActiveUsers():Resource<List<User>>{
         return Resource.Success(null)
     }
 }

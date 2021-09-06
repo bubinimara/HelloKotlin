@@ -6,7 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import com.example.hellokotlin.R
+import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.data.model.Movie
+import com.example.hellokotlin.data.model.User
 
 class MainFragment : Fragment() {
 
@@ -26,7 +30,22 @@ class MainFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        // TODO: Use the ViewModel
+        viewModel.movies.observe(this, Observer {
+            renderViewMovies(it)
+        })
+        viewModel.users.observe(this, Observer {
+            renderViewUsers(it)
+        })
     }
 
+    private fun renderViewUsers(resource: Resource<List<User>>) {
+        when(resource){
+            is Resource.Success ->{}
+        }
+    }
+    private fun renderViewMovies(resource: Resource<List<Movie>>) {
+        when(resource){
+            is Resource.Success ->{}
+        }
+    }
 }

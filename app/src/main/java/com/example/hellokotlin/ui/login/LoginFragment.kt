@@ -2,6 +2,7 @@ package com.example.hellokotlin.ui.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -37,20 +38,9 @@ class LoginFragment : Fragment() {
         })
     }
 
-    private fun showLoading(isShoing: Boolean) {
-        if(isShoing){
-            viewBinding.group.visibility = ViewGroup.GONE
-            viewBinding.progress.visibility = ViewGroup.VISIBLE
-        }else{
-            viewBinding.group.visibility = ViewGroup.VISIBLE
-            viewBinding.progress.visibility = ViewGroup.GONE
-        }
-    }
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-
 
         viewModel.data.observe(this,  Observer{ r->
             renderView(r)
@@ -58,6 +48,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun renderView(resource: Resource<User>?) {
+
         when(resource){
             is Resource.Loading -> {showLoading(true)}
             is Resource.Success -> {
@@ -76,6 +67,16 @@ class LoginFragment : Fragment() {
         val intent = Intent(context,MainActivity::class.java)
         startActivity(intent)
         activity?.finish()
+    }
+
+    private fun showLoading(isShoing: Boolean) {
+        if(isShoing){
+            viewBinding.group.visibility = ViewGroup.GONE
+            viewBinding.progress.visibility = ViewGroup.VISIBLE
+        }else{
+            viewBinding.group.visibility = ViewGroup.VISIBLE
+            viewBinding.progress.visibility = ViewGroup.GONE
+        }
     }
 
     private fun showMessage(message: String) {

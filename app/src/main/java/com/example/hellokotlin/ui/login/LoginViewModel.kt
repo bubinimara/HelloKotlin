@@ -10,12 +10,10 @@ class LoginViewModel : ViewModel() {
 
     var dataRepository:DataRepository = DataRepository()
 
-    val data: MutableLiveData<Resource<User>> by lazy {
-        MutableLiveData<Resource<User>>().also {
-            // fetch default user
-            // datarepository.fetchUser()
+    val data = MutableLiveData<Resource<User>>()
+        .also {
+            it.value = dataRepository.login("username", "password")
         }
-    }
 
     fun login(username: String, password: String) {
         data.value = dataRepository.login(username, password)

@@ -18,7 +18,11 @@ class DataRepository {
     }
 
     fun getMovies():Resource<List<Movie>>{
-        return Resource.Success(emptyList())
+        val movies:MutableList<Movie> = ArrayList()
+        for (i:Int in 1..10){
+            movies.add(Movie("Movie $i"))
+        }
+        return Resource.Success(movies)
     }
     fun getLastActiveUsers():Resource<List<User>>{
         val users:MutableList<User> = ArrayList<User>()

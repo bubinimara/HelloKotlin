@@ -14,6 +14,7 @@ import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
+import com.example.hellokotlin.ui.adapter.MovieAdapter
 import com.example.hellokotlin.ui.adapter.UsersAdapter
 
 class MainFragment : Fragment() {
@@ -26,6 +27,7 @@ class MainFragment : Fragment() {
     private lateinit var viewBinding: MainFragmentBinding
 
     private val rvUsersAdapter = UsersAdapter()
+    private val rvMoviewAdaper = MovieAdapter()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -46,6 +48,10 @@ class MainFragment : Fragment() {
         })
         viewBinding.rvUsers.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
         viewBinding.rvUsers.adapter = rvUsersAdapter
+
+        viewBinding.rvMovies.layoutManager = LinearLayoutManager(context)
+        viewBinding.rvMovies.adapter = rvMoviewAdaper
+
         viewModel.refresh()
 
     }
@@ -60,14 +66,15 @@ class MainFragment : Fragment() {
 
             is Resource.Success ->{
                 resource.data?.let {
-                    Log.d("TAG","adding users")
                     rvUsersAdapter.add(it) }
             }
         }
     }
     private fun renderViewMovies(resource: Resource<List<Movie>>) {
         when(resource){
-            is Resource.Success ->{}
+            is Resource.Success ->{
+                resource.data?.let { rvMoviewAdaper.add(it) }
+            }
         }
     }
 }

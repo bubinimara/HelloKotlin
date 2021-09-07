@@ -31,7 +31,7 @@ class MainViewModel : ViewModel() {
             repository.getMovies()
         }
     }
-    
+
     fun refresh(){
         repository.getLastActiveUsers().also {
             users.value = it

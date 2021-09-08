@@ -3,12 +3,13 @@ package com.example.hellokotlin.ui.login
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hellokotlin.data.DataRepository
+import com.example.hellokotlin.data.DataRepositoryImpl
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
 
 class LoginViewModel : ViewModel() {
 
-    var dataRepository:DataRepository = DataRepository()
+    var dataRepository: DataRepository = DataRepositoryImpl()
 
     val data = MutableLiveData<Resource<User>>()
         .also {

@@ -16,7 +16,9 @@ import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
 import com.example.hellokotlin.ui.adapter.MovieAdapter
 import com.example.hellokotlin.ui.adapter.UsersAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainFragment : Fragment() {
 
     companion object {

@@ -1,19 +1,35 @@
 package com.example.hellokotlin.data
 
+import android.util.Log
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
+import com.example.hellokotlin.data.network.NetworkServices
+import com.example.hellokotlin.data.network.model.LoginRequest
+import kotlinx.coroutines.*
 
 /**
  *
  * Created by Davide Parise on 30/08/21.
  */
 class DataRepositoryImpl : DataRepository {
-    override fun login(username:String, password:String):Resource<User> {
-        if (username.isEmpty()) // some checks
-        //simulate error if not passed
-            return Resource.Error(400)
+    companion object {
+        private const val TAG = "DataRepositoryImpl"
+    }
 
-        return Resource.Success(User(username))
+    private val apiService = NetworkServices().apiService
+
+    override suspend fun login(username:String, password:String):Resource<User> {
+        Log.d(TAG, "login: $username $password")
+         return withContext(Dispatchers.IO) {
+             val requestToken: String = apiService.requestToken().request_token
+             val token = apiService.login(LoginRequest(username,password,requestToken))
+             if(token.request_token.isEmpty()){
+                 Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
+             }else {
+                 Resource.Success(User(username))
+             }
+
+         }
     }
 
     override fun getMovies():Resource<List<Movie>>{
@@ -30,4 +46,5 @@ class DataRepositoryImpl : DataRepository {
         }
         return Resource.Success(users)
     }
+
 }

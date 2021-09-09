@@ -16,6 +16,7 @@ sealed class Resource<T>(
     class Loading<T>(data: T?,error: Int?):Resource<T>(data,error){}
     class Error<T>(error: Int?):Resource<T>(error = error){
         object ErrorCode{
+            val INVALID_TOKEN = -2
             var UNKNOWN_ERROR = -1
         }
     }

@@ -2,6 +2,7 @@ package com.example.hellokotlin.data.network.model
 
 import android.os.Parcelable
 import androidx.versionedparcelable.VersionedParcelize
+import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import kotlinx.parcelize.Parcelize
@@ -14,8 +15,8 @@ import kotlinx.parcelize.Parcelize
 @JsonClass(generateAdapter = false)
 @Parcelize
 data class Token(
-    @Json(name = "expires_at")
+    @SerializedName("expires_at")
     val expires_at:String="",
-    @Json(name = "request_token")
+    @SerializedName("request_token")
     val request_token:String=""
     ):Parcelable

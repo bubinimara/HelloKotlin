@@ -12,39 +12,41 @@ import kotlinx.coroutines.*
  * Created by Davide Parise on 30/08/21.
  */
 class DataRepositoryImpl : DataRepository {
-    companion object {
-        private const val TAG = "DataRepositoryImpl"
-    }
-
     private val apiService = NetworkServices().apiService
 
     override suspend fun login(username:String, password:String):Resource<User> {
-        Log.d(TAG, "login: $username $password")
          return withContext(Dispatchers.IO) {
              val requestToken: String = apiService.requestToken().request_token
              val token = apiService.login(LoginRequest(username,password,requestToken))
              if(token.request_token.isEmpty()){
                  Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
              }else {
-                 Resource.Success(User(username))
+                 Resource.Success(User(name = username))
              }
-
          }
     }
 
-    override fun getMovies():Resource<List<Movie>>{
-        val movies:MutableList<Movie> = ArrayList()
-        for (i:Int in 1..10){
-            movies.add(Movie("Movie $i"))
+    override suspend fun getMovies():Resource<List<Movie>>{
+        return withContext(Dispatchers.IO){
+            try {
+                val response = apiService.popularMovies()
+                Resource.Success(response.results)
+            } catch (e: Exception) {
+                Resource.Error()
+            }
         }
-        return Resource.Success(movies)
     }
-    override fun getLastActiveUsers():Resource<List<User>>{
-        val users:MutableList<User> = ArrayList<User>()
-        for(i:Int in  1..10){
-                users.add(User("User $i"))
+    override suspend fun getPopularUsers():Resource<List<User>>{
+        return withContext(Dispatchers.IO){
+            try {
+                val items = apiService.popularUsers().results
+                Resource.Success(items)
+            }catch (e:Exception){
+                Resource.Error()
+            }
         }
-        return Resource.Success(users)
     }
+
+
 
 }

@@ -12,9 +12,9 @@ sealed class Resource<T>(
     var data: T? =null,
     var error: Int? = null
 ){
-    class Success<T>(data: T?):Resource<T>(data=data){}
-    class Loading<T>(data: T?,error: Int?):Resource<T>(data,error){}
-    class Error<T>(error: Int?):Resource<T>(error = error){
+    class Success<T>(data: T?):Resource<T>(data=data)
+    class Loading<T>(data: T? = null):Resource<T>(data = data)
+    class Error<T>(error: Int = ErrorCode.UNKNOWN_ERROR):Resource<T>(error = error){
         object ErrorCode{
             val INVALID_TOKEN = -2
             var UNKNOWN_ERROR = -1

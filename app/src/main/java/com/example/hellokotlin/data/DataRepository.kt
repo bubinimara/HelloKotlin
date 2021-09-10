@@ -5,6 +5,6 @@ import com.example.hellokotlin.data.model.User
 
 interface DataRepository {
     suspend fun login(username: String, password: String): Resource<User>
-    fun getMovies(): Resource<List<Movie>>
-    fun getLastActiveUsers(): Resource<List<User>>
+    suspend fun getMovies(): Resource<List<Movie>>
+    suspend fun getPopularUsers(): Resource<List<User>>
 }

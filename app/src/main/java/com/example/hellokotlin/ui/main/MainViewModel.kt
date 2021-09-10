@@ -2,12 +2,13 @@ package com.example.hellokotlin.ui.main
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.hellokotlin.data.DataRepository
-import com.example.hellokotlin.data.DataRepositoryImpl
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -21,7 +22,9 @@ class MainViewModel @Inject constructor(val repository: DataRepository) : ViewMo
      */
     val users: MutableLiveData<Resource<List<User>>> by lazy {
         MutableLiveData<Resource<List<User>>>().also {
-            repository.getLastActiveUsers()
+            viewModelScope.launch {
+                repository.getPopularUsers()
+            }
         }
     }
 
@@ -30,16 +33,20 @@ class MainViewModel @Inject constructor(val repository: DataRepository) : ViewMo
      */
     val movies: MutableLiveData<Resource<List<Movie>>> by lazy {
         MutableLiveData<Resource<List<Movie>>>().also {
-            repository.getMovies()
+            viewModelScope.launch {
+                repository.getMovies()
+            }
         }
     }
 
     fun refresh(){
-        repository.getLastActiveUsers().also {
-            users.value = it
-        }
-        repository.getMovies().also {
-            movies.value = it
+        viewModelScope.launch {
+            repository.getPopularUsers().also {
+                users.value = it
+            }
+            repository.getMovies().also {
+                movies.value = it
+            }
         }
     }
 }

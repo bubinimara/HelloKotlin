@@ -7,4 +7,8 @@ package com.example.hellokotlin.data.model
  *
  * A movie item
  */
-data class Movie(val title:String)
+data class Movie(
+    val id:Int,
+    val title:String,
+    var poster_path:String=""
+)

@@ -30,5 +30,5 @@ interface ApiService {
     suspend fun popularMovies(@Query("page")page: Int = 1):ListResponse<Movie>
 
     @GET("3/configuration")
-    suspend fun configuration():ConfigurationResponse
+    suspend fun configuration(): ConfigurationResponse
 }

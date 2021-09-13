@@ -1,6 +1,7 @@
 package com.example.hellokotlin.data.network.model
 
 import android.os.Parcelable
+import com.example.hellokotlin.data.model.ImageUrl
 import kotlinx.parcelize.Parcelize
 
 
@@ -10,12 +11,6 @@ import kotlinx.parcelize.Parcelize
  */
 @Parcelize
 data class ConfigurationResponse(
-    val images: Image
+    val images: ImageUrl
 ) : Parcelable {
-    @Parcelize
-    data class Image(
-        val base_url:String,
-        val poster_sizes:List<String>,
-        val profile_sizes:List<String>
-    ) : Parcelable
 }

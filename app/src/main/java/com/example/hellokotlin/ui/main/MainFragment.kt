@@ -8,15 +8,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.data.model.ImageUrl
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
+import com.example.hellokotlin.data.util.ImageUtil
 import com.example.hellokotlin.databinding.MainFragmentBinding
 import com.example.hellokotlin.ui.adapter.MovieAdapter
 import com.example.hellokotlin.ui.adapter.UsersAdapter
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -28,8 +32,12 @@ class MainFragment : Fragment() {
     private lateinit var viewModel: MainViewModel
     private lateinit var viewBinding: MainFragmentBinding
 
-    private val rvUsersAdapter = UsersAdapter()
-    private val rvMoviewAdaper = MovieAdapter()
+    @Inject
+    lateinit var  imageUtil:ImageUtil
+
+    private lateinit var rvUsersAdapter:UsersAdapter
+
+    private lateinit var rvMoviewAdaper:MovieAdapter;
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,10 +56,12 @@ class MainFragment : Fragment() {
         viewModel.users.observe(this, Observer {
             renderViewUsers(it)
         })
+        rvUsersAdapter = UsersAdapter(imageUtil)
         viewBinding.rvUsers.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
         viewBinding.rvUsers.adapter = rvUsersAdapter
 
-        viewBinding.rvMovies.layoutManager = LinearLayoutManager(context)
+        rvMoviewAdaper = MovieAdapter(imageUtil)
+        viewBinding.rvMovies.layoutManager = GridLayoutManager(context,3)
         viewBinding.rvMovies.adapter = rvMoviewAdaper
 
         viewModel.refresh()

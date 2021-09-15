@@ -8,10 +8,13 @@ import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
+import com.example.hellokotlin.data.util.ImageUtil
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.lang.Exception
+import javax.inject.Inject
 
-class LoginViewModel : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(private val imageUtil: ImageUtil) : ViewModel() {
 
     var dataRepository: DataRepository = DataRepositoryImpl()
     private val NO_LOGIN = true
@@ -19,6 +22,11 @@ class LoginViewModel : ViewModel() {
     val data = MutableLiveData<Resource<User>>()
         .also {
             //it.value = dataRepository.login("username", "password")
+            it.value = Resource.Loading()
+            viewModelScope.launch {
+                imageUtil.initialize()
+                it.value = Resource.Success(null)
+            }
         }
 
     fun login(username: String, password: String) {

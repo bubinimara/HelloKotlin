@@ -14,7 +14,9 @@ import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.LoginFragmentBinding
 import com.example.hellokotlin.ui.main.MainActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     companion object {
@@ -53,7 +55,11 @@ class LoginFragment : Fragment() {
             is Resource.Loading -> {showLoading(true)}
             is Resource.Success -> {
                 showLoading(false)
-                gotoMain()
+                if(resource.data == null){
+                    showMessage("User not found")
+                }else {
+                    gotoMain()
+                }
             }
             is Resource.Error -> {
                 showLoading(false)

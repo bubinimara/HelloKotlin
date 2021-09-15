@@ -38,15 +38,11 @@ class UsersAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<UsersAdapter.V
         }
         fun set(user: User){
             name.text = user.name
-            CoroutineScope(Dispatchers.IO).launch{
-                val img = imageUtil.getImageUrlForUser(user)
-                withContext(Dispatchers.Main){
-                    Glide.with(itemView)
-                        .load(img)
-                        .circleCrop()
-                        .into(image)
-                }
-            }
+            val img = imageUtil.getImageUrlForUser(user)
+            Glide.with(itemView)
+                .load(img)
+                .circleCrop()
+                .into(image)
         }
     }
 

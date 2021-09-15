@@ -19,14 +19,12 @@ class ImageUtil @Inject constructor(val respository: DataRepository) {
         var config:ConfigurationResponse ?= null
     }
 
-    suspend fun getImageUrlForMovie(movie: Movie): String {
-        initialize()
+    fun getImageUrlForMovie(movie: Movie): String {
         val baseUrl = config!!.images.base_url.replace("http://", "https://")
         return baseUrl+getImagePosterSize()+movie.poster_path
     }
 
-    suspend fun getImageUrlForUser(user: User): String {
-        initialize()
+    fun getImageUrlForUser(user: User): String {
         val baseUrl = config!!.images.base_url.replace("http://", "https://")
         return baseUrl+getImageProfileSize()+user.profile_path
     }
@@ -41,7 +39,7 @@ class ImageUtil @Inject constructor(val respository: DataRepository) {
         return img.poster_sizes[img.poster_sizes.size-1]
     }
 
-    private suspend fun initialize() {
+    suspend fun initialize() {
         if(config == null) {
             config = respository.configuration().data
                 ?: throw IOException("Can't retrieve configuration from server side")

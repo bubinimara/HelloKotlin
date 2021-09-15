@@ -32,17 +32,11 @@ class MovieAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<MovieAdapter.H
 
         fun set(movie:Movie){
             title.text = movie.title
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val imageUrlForMovie = util.getImageUrlForMovie(movie)
-                withContext(Dispatchers.Main) {
-                    Glide.with(itemView)
-                        .load(imageUrlForMovie)
-                        .centerCrop()
-                        .into(image)
-                }
-            }
-
+            val imageUrlForMovie = util.getImageUrlForMovie(movie)
+            Glide.with(itemView)
+                .load(imageUrlForMovie)
+                .centerCrop()
+                .into(image)
         }
     }
 

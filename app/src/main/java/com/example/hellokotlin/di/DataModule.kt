@@ -1,13 +1,17 @@
 package com.example.hellokotlin.di
 
+import android.content.Context
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
+import com.example.hellokotlin.data.local.SessionManager
+import com.example.hellokotlin.data.local.SessionManagerImpl
 import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.util.AppUtils
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -19,6 +23,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
+
+    @Provides
+    @Singleton
+    fun provideSessionManager(@ApplicationContext context: Context):SessionManager{
+        return SessionManagerImpl(context)
+    }
+
     @Provides
     @Singleton
     fun provideNetworkService(): NetworkServices{

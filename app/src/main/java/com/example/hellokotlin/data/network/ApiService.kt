@@ -2,10 +2,7 @@ package com.example.hellokotlin.data.network
 
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
-import com.example.hellokotlin.data.network.model.ConfigurationResponse
-import com.example.hellokotlin.data.network.model.ListResponse
-import com.example.hellokotlin.data.network.model.LoginRequest
-import com.example.hellokotlin.data.network.model.Token
+import com.example.hellokotlin.data.network.model.*
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -31,4 +28,9 @@ interface ApiService {
 
     @GET("3/configuration")
     suspend fun configuration(): ConfigurationResponse
+
+    @POST("3/authentication/session/new")
+    suspend fun createSessionId(@Body token:String): SessionIdResponse
+
+
 }

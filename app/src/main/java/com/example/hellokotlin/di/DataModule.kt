@@ -2,12 +2,11 @@ package com.example.hellokotlin.di
 
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
-import com.example.hellokotlin.data.util.ImageUtil
+import com.example.hellokotlin.data.util.AppUtils
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
 import javax.inject.Singleton
 
 
@@ -27,7 +26,7 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideImageUtil(dataRepository: DataRepository):ImageUtil{
-        return ImageUtil(dataRepository)
+    fun provideImageUtil(dataRepository: DataRepository):AppUtils{
+        return AppUtils(dataRepository)
     }
 }

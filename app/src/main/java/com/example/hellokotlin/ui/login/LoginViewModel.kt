@@ -1,6 +1,5 @@
 package com.example.hellokotlin.ui.login
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,13 +7,13 @@ import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.User
-import com.example.hellokotlin.data.util.ImageUtil
+import com.example.hellokotlin.data.util.AppUtils
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val imageUtil: ImageUtil) : ViewModel() {
+class LoginViewModel @Inject constructor(private val appUtils: AppUtils) : ViewModel() {
 
     var dataRepository: DataRepository = DataRepositoryImpl()
     private val NO_LOGIN = true
@@ -24,7 +23,7 @@ class LoginViewModel @Inject constructor(private val imageUtil: ImageUtil) : Vie
             //it.value = dataRepository.login("username", "password")
             it.value = Resource.Loading()
             viewModelScope.launch {
-                imageUtil.initialize()
+                appUtils.initialize()
                 it.value = Resource.Success(null)
             }
         }

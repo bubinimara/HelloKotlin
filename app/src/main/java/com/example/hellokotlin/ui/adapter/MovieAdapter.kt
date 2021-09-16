@@ -9,19 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
-import com.example.hellokotlin.data.util.ImageUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.hellokotlin.data.util.AppUtils.ImageUtils
 
 
 /**
  *
  * Created by Davide Parise on 07/09/21.
  */
-class MovieAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<MovieAdapter.Holder>() {
-    public class Holder(itemView: View,val util: ImageUtil) : RecyclerView.ViewHolder(itemView) {
+class MovieAdapter():RecyclerView.Adapter<MovieAdapter.Holder>() {
+    public class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title:TextView
         val image:ImageView
 
@@ -32,7 +28,7 @@ class MovieAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<MovieAdapter.H
 
         fun set(movie:Movie){
             title.text = movie.title
-            val imageUrlForMovie = util.getImageUrlForMovie(movie)
+            val imageUrlForMovie = ImageUtils.getImageUrlForMovie(movie)
             Glide.with(itemView)
                 .load(imageUrlForMovie)
                 .centerCrop()
@@ -45,7 +41,7 @@ class MovieAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<MovieAdapter.H
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.row_item_movie,parent,false)
-        return Holder(view,imageUtil)
+        return Holder(view)
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {

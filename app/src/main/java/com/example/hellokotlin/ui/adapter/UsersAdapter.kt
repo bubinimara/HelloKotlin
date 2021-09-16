@@ -9,18 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.User
-import com.example.hellokotlin.data.util.ImageUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.hellokotlin.data.util.AppUtils.ImageUtils
+
 
 
 /**
  *
  * Created by Davide Parise on 05/09/21.
  */
-class UsersAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
+class UsersAdapter():RecyclerView.Adapter<UsersAdapter.ViewHolder>() {
 
 
     private val items:MutableList<User> = ArrayList()
@@ -28,7 +25,7 @@ class UsersAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<UsersAdapter.V
     /**
      * The view holder
      */
-    class ViewHolder(itemView: View,val imageUtil: ImageUtil) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val name:TextView
         private val image:ImageView
 
@@ -38,7 +35,7 @@ class UsersAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<UsersAdapter.V
         }
         fun set(user: User){
             name.text = user.name
-            val img = imageUtil.getImageUrlForUser(user)
+            val img = ImageUtils.getImageUrlForUser(user)
             Glide.with(itemView)
                 .load(img)
                 .circleCrop()
@@ -49,7 +46,7 @@ class UsersAdapter(val imageUtil: ImageUtil):RecyclerView.Adapter<UsersAdapter.V
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view =
             LayoutInflater.from(parent.context).inflate(R.layout.row_item_user, parent, false)
-        return ViewHolder(view,imageUtil)
+        return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

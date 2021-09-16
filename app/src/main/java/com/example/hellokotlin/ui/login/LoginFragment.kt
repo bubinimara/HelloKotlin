@@ -34,18 +34,15 @@ class LoginFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
+
+        viewModel.data.observe(viewLifecycleOwner,  Observer{ r->
+            renderView(r)
+        })
+
         viewBinding.button.setOnClickListener(View.OnClickListener {
             showLoading(true)
             viewModel.login(viewBinding.username.text.toString(), viewBinding.password.text.toString())
-        })
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(LoginViewModel::class.java)
-
-        viewModel.data.observe(this,  Observer{ r->
-            renderView(r)
         })
     }
 

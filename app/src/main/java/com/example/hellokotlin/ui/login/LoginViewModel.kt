@@ -13,9 +13,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val appUtils: AppUtils) : ViewModel() {
+class LoginViewModel @Inject constructor(private var dataRepository: DataRepository,private val appUtils: AppUtils) : ViewModel() {
 
-    var dataRepository: DataRepository = DataRepositoryImpl()
     private val NO_LOGIN = true
 
     val data = MutableLiveData<Resource<User>>()

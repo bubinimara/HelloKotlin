@@ -2,7 +2,9 @@ package com.example.hellokotlin.di
 
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
+import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.util.AppUtils
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,11 +19,16 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
+    @Provides
+    @Singleton
+    fun provideNetworkService(): NetworkServices{
+        return NetworkServices()
+    }
 
     @Provides
     @Singleton
-    fun provideDataRepository():DataRepository{
-        return DataRepositoryImpl()
+    fun provideDataRepository(networkServices: NetworkServices):DataRepository{
+        return DataRepositoryImpl(networkServices.apiService)
     }
 
     @Provides

@@ -3,6 +3,7 @@ package com.example.hellokotlin.data
 import android.util.Log
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
+import com.example.hellokotlin.data.network.ApiService
 import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.network.model.ConfigurationResponse
 import com.example.hellokotlin.data.network.model.LoginRequest
@@ -12,8 +13,8 @@ import kotlinx.coroutines.*
  *
  * Created by Davide Parise on 30/08/21.
  */
-class DataRepositoryImpl : DataRepository {
-    private val apiService = NetworkServices().apiService
+class DataRepositoryImpl constructor(private val apiService:ApiService) : DataRepository {
+
     override suspend fun configuration(): Resource<ConfigurationResponse> {
         return withContext(Dispatchers.IO){
             try {

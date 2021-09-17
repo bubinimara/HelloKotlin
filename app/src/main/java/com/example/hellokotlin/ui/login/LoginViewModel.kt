@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(private var dataRepository: DataRepository,private val appUtils: AppUtils) : ViewModel() {
 
-    private val NO_LOGIN = true
+    private val NO_LOGIN = false
 
     val data = MutableLiveData<Resource<User>>()
         .also {
@@ -23,7 +23,9 @@ class LoginViewModel @Inject constructor(private var dataRepository: DataReposit
             it.value = Resource.Loading()
             viewModelScope.launch {
                 appUtils.initialize()
-                it.value = Resource.Success(null)
+                dataRepository.loadLastSession().run {
+                    it.value = this
+                }
             }
         }
 

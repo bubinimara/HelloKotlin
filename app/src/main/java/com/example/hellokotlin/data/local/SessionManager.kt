@@ -7,6 +7,6 @@ package com.example.hellokotlin.data.local
  */
 interface SessionManager {
 
-    fun loadSession():String
-    fun storeSession(sessionId:String)
+    fun loadSession():Session
+    fun storeSession(sessionId:Session)
 }

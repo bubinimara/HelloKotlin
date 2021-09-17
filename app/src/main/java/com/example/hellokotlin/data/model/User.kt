@@ -6,7 +6,7 @@ package com.example.hellokotlin.data.model
  */
 data class User(
     var id:Int = -1,
-    var name:String,
+    var name:String = "",
     var profile_path:String=""
     ){
 

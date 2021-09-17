@@ -38,8 +38,8 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideDataRepository(networkServices: NetworkServices):DataRepository{
-        return DataRepositoryImpl(networkServices.apiService)
+    fun provideDataRepository(networkServices: NetworkServices, sessionManager: SessionManager):DataRepository{
+        return DataRepositoryImpl(networkServices.apiService,sessionManager)
     }
 
     @Provides

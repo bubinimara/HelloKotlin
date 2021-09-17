@@ -1,21 +1,23 @@
 package com.example.hellokotlin.data
 
-import android.util.Log
+import com.example.hellokotlin.data.local.Session
 import com.example.hellokotlin.data.local.SessionManager
+import com.example.hellokotlin.data.local.SessionManagerImpl
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.data.network.ApiService
-import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.network.model.ConfigurationResponse
 import com.example.hellokotlin.data.network.model.LoginRequest
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /**
  *
  * Created by Davide Parise on 30/08/21.
  */
 class DataRepositoryImpl constructor(private val apiService:ApiService,
-                            private val sessionManager: SessionManager) : DataRepository {
+                            private val sessionManager: SessionManager
+) : DataRepository {
 
     override suspend fun configuration(): Resource<ConfigurationResponse> {
         return withContext(Dispatchers.IO){
@@ -27,19 +29,25 @@ class DataRepositoryImpl constructor(private val apiService:ApiService,
         }
     }
 
+     override suspend fun loadLastSession():Resource<User>{
+        val session = sessionManager.loadSession()
+        var user:User ?= null
+        if(session.isValid()){
+            user = User(name = session.username)
+        }
+        return Resource.Success(user)
+    }
+
     override suspend fun login(username:String, password:String):Resource<User> {
          return withContext(Dispatchers.IO) {
-             if(sessionManager.loadSession().isEmpty()) {
-                 val requestToken: String = apiService.requestToken().request_token
-                 val token = apiService.login(LoginRequest(username,password,requestToken))
-                 val sessionIdResponse = apiService.createSessionId(token.request_token)
-                 if(sessionIdResponse.sessionId.isEmpty()) {
-                     Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
-                 }else {
-                     sessionManager.storeSession(sessionIdResponse.sessionId)
-                     Resource.Success(User(name = username))
-                 }
-             }else{
+             val requestToken: String = apiService.requestToken().request_token
+             val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
+             val sessionIdResponse = apiService.createSessionId(tokenResponse)
+             if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
+                 Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
+             }else {
+                 val s = Session(username, sessionIdResponse.sessionId)
+                 sessionManager.storeSession(s)
                  Resource.Success(User(name = username))
              }
          }

@@ -9,4 +9,5 @@ interface DataRepository {
     suspend fun login(username: String, password: String): Resource<User>
     suspend fun getMovies(): Resource<List<Movie>>
     suspend fun getPopularUsers(): Resource<List<User>>
+    suspend fun loadLastSession(): Resource<User>
 }

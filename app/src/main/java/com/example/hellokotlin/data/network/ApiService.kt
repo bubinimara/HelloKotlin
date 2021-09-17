@@ -30,7 +30,7 @@ interface ApiService {
     suspend fun configuration(): ConfigurationResponse
 
     @POST("3/authentication/session/new")
-    suspend fun createSessionId(@Body token:String): SessionIdResponse
+    suspend fun createSessionId(@Body token:Token): SessionResponse
 
 
 }

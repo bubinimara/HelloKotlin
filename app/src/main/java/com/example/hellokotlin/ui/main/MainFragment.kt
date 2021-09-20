@@ -1,19 +1,20 @@
 package com.example.hellokotlin.ui.main
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
 import com.example.hellokotlin.ui.adapter.MovieAdapter
 import com.example.hellokotlin.ui.adapter.UsersAdapter
+import com.example.hellokotlin.ui.login.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,6 +35,7 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         viewBinding = MainFragmentBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
@@ -68,6 +70,34 @@ class MainFragment : Fragment() {
             is Resource.Loading -> {}
         }
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu,menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.action_logout ->{
+                // todo: show dialog
+                viewModel.logout()
+                goToLogin()
+                return true
+            }
+            else->{
+                return super.onOptionsItemSelected(item)
+            }
+        }
+
+    }
+
+    private fun goToLogin() {
+        // @Todo:check if resumed
+        val intent= Intent(context,LoginActivity::class.java)
+        startActivity(intent)
+        activity?.finish()
+    }
+
     private fun renderViewMovies(resource: Resource<List<Movie>>) {
         when(resource){
             is Resource.Success ->{
@@ -78,3 +108,4 @@ class MainFragment : Fragment() {
         }
     }
 }
+

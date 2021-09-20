@@ -9,4 +9,5 @@ interface SessionManager {
 
     fun loadSession():Session
     fun storeSession(sessionId:Session)
+    fun clear():Boolean
 }

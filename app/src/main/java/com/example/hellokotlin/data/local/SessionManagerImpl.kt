@@ -34,4 +34,10 @@ class SessionManagerImpl(context:Context) : SessionManager {
             }
         }
     }
+
+    override fun clear(): Boolean {
+        session = null
+        shardPref.edit().clear().apply()
+        return true
+    }
 }

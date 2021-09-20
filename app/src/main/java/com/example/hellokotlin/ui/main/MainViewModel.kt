@@ -39,6 +39,9 @@ class MainViewModel @Inject constructor(val repository: DataRepository) : ViewMo
         }
     }
 
+    val actionLogout = MutableLiveData<Resource<Boolean>>()
+
+
     fun refresh(){
         viewModelScope.launch {
             repository.getPopularUsers().also {
@@ -47,6 +50,13 @@ class MainViewModel @Inject constructor(val repository: DataRepository) : ViewMo
             repository.getMovies().also {
                 movies.value = it
             }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            repository.logout()
+            actionLogout.value = Resource.Success(true)
         }
     }
 }

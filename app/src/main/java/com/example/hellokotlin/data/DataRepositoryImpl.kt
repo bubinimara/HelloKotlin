@@ -38,6 +38,11 @@ class DataRepositoryImpl constructor(private val apiService:ApiService,
         return Resource.Success(user)
     }
 
+    override suspend fun logout(): Resource<Boolean> {
+        sessionManager.clear()
+        return Resource.Success(true)
+    }
+
     override suspend fun login(username:String, password:String):Resource<User> {
          return withContext(Dispatchers.IO) {
              val requestToken: String = apiService.requestToken().request_token

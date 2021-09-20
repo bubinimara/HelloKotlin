@@ -19,7 +19,6 @@ class LoginViewModel @Inject constructor(private var dataRepository: DataReposit
 
     val data = MutableLiveData<Resource<User>>()
         .also {
-            //it.value = dataRepository.login("username", "password")
             it.value = Resource.Loading()
             viewModelScope.launch {
                 appUtils.initialize()

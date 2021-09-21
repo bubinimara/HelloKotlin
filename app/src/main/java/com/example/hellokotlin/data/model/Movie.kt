@@ -1,5 +1,8 @@
 package com.example.hellokotlin.data.model
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.example.hellokotlin.data.network.json.AccountStateDeserializer
 import com.google.gson.annotations.JsonAdapter
 
@@ -17,6 +20,9 @@ data class Movie(
     var accountState:AccountState ?= null
 ){
     @JsonAdapter(AccountStateDeserializer::class)
-    data class AccountState constructor(val id: Int=-1,val rate:Int=-1){
+    @Entity(tableName = "account_state")
+    data class AccountState constructor(
+        @PrimaryKey val id: Int=-1,
+        @ColumnInfo(name = "rate") val rate:Int=-1){ // add timestamp
     }
 }

@@ -1,9 +1,9 @@
 package com.example.hellokotlin.data
 
 import android.util.Log
-import com.example.hellokotlin.data.local.Session
-import com.example.hellokotlin.data.local.SessionManager
-import com.example.hellokotlin.data.local.SessionManagerImpl
+import com.example.hellokotlin.data.db.AppDb
+import com.example.hellokotlin.data.session.Session
+import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.data.network.ApiService
@@ -11,14 +11,19 @@ import com.example.hellokotlin.data.network.model.ConfigurationResponse
 import com.example.hellokotlin.data.network.model.LoginRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.math.log
 
 /**
  *
  * Created by Davide Parise on 30/08/21.
  */
-class DataRepositoryImpl constructor(private val apiService:ApiService,
-                            private val sessionManager: SessionManager
+class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
+                                     private val sessionManager: SessionManager,
+                                     private val appDb: AppDb
 ) : DataRepository {
+
+    private val movieDao = appDb.movieDao()
 
     override suspend fun configuration(): Resource<ConfigurationResponse> {
         return withContext(Dispatchers.IO){
@@ -66,7 +71,7 @@ class DataRepositoryImpl constructor(private val apiService:ApiService,
                 val response = apiService.popularMovies()
                 val list = response.results?.toMutableList()
                 list.forEach {
-                    it.accountState = apiService.accountState(it.id,sessionManager.loadSession().sessionId)
+                    it.accountState = getAccountState(it)
                 }
                 Resource.Success(list)
             } catch (e: Exception) {
@@ -75,6 +80,21 @@ class DataRepositoryImpl constructor(private val apiService:ApiService,
             }
         }
     }
+
+    suspend fun getAccountState(movie: Movie): Movie.AccountState? {
+        return  movieDao.getAccountState(movie.id) ?: run {
+            return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)?.let {
+                movieDao.inster(it)
+                // return it
+                it
+            }
+
+            // return
+
+        }
+
+    }
+
     override suspend fun getPopularUsers():Resource<List<User>>{
         return withContext(Dispatchers.IO){
             try {

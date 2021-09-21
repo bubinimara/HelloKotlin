@@ -1,4 +1,4 @@
-package com.example.hellokotlin.data.local
+package com.example.hellokotlin.data.session
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

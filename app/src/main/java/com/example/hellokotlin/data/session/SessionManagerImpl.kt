@@ -1,4 +1,4 @@
-package com.example.hellokotlin.data.local
+package com.example.hellokotlin.data.session
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -25,12 +25,12 @@ class SessionManagerImpl(context:Context) : SessionManager {
         return session!!
     }
 
-    override fun storeSession(s: Session) {
+    override fun storeSession(session: Session) {
         shardPref.edit {
-            putString(KEY_SESSION,s.sessionId)
-            putString(KEY_USERNAME,s.username)
+            putString(KEY_SESSION,session.sessionId)
+            putString(KEY_USERNAME,session.username)
             apply().also {
-                session = s
+                this@SessionManagerImpl.session = session
             }
         }
     }

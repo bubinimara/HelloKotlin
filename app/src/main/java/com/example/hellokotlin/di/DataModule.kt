@@ -3,11 +3,11 @@ package com.example.hellokotlin.di
 import android.content.Context
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.DataRepositoryImpl
-import com.example.hellokotlin.data.local.SessionManager
-import com.example.hellokotlin.data.local.SessionManagerImpl
+import com.example.hellokotlin.data.db.AppDb
+import com.example.hellokotlin.data.session.SessionManager
+import com.example.hellokotlin.data.session.SessionManagerImpl
 import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.util.AppUtils
-import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,8 +38,8 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideDataRepository(networkServices: NetworkServices, sessionManager: SessionManager):DataRepository{
-        return DataRepositoryImpl(networkServices.apiService,sessionManager)
+    fun provideDataRepository(networkServices: NetworkServices, sessionManager: SessionManager,appDb: AppDb):DataRepository{
+        return DataRepositoryImpl(networkServices.apiService,sessionManager,appDb)
     }
 
     @Provides
@@ -47,4 +47,11 @@ class DataModule {
     fun provideImageUtil(dataRepository: DataRepository):AppUtils{
         return AppUtils(dataRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context):AppDb{
+        return AppDb.getDb(context)
+    }
+
 }

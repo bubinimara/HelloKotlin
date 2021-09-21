@@ -1,4 +1,4 @@
-package com.example.hellokotlin.data.local
+package com.example.hellokotlin.data.session
 
 
 /**
@@ -8,6 +8,6 @@ package com.example.hellokotlin.data.local
 interface SessionManager {
 
     fun loadSession():Session
-    fun storeSession(sessionId:Session)
+    fun storeSession(session:Session)
     fun clear():Boolean
 }

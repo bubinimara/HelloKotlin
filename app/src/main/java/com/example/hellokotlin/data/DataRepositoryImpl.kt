@@ -1,5 +1,6 @@
 package com.example.hellokotlin.data
 
+import android.util.Log
 import com.example.hellokotlin.data.local.Session
 import com.example.hellokotlin.data.local.SessionManager
 import com.example.hellokotlin.data.local.SessionManagerImpl
@@ -63,8 +64,13 @@ class DataRepositoryImpl constructor(private val apiService:ApiService,
         return withContext(Dispatchers.IO){
             try {
                 val response = apiService.popularMovies()
-                Resource.Success(response.results)
+                val list = response.results?.toMutableList()
+                list.forEach {
+                    it.accountState = apiService.accountState(it.id,sessionManager.loadSession().sessionId)
+                }
+                Resource.Success(list)
             } catch (e: Exception) {
+                Log.e("DataRepository", "getPopularUsers: ",e )
                 Resource.Error()
             }
         }

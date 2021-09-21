@@ -15,7 +15,7 @@ import javax.inject.Inject
  * @author Davide Parise
  */
 @HiltViewModel
-class MainViewModel @Inject constructor(val repository: DataRepository) : ViewModel() {
+class MainViewModel @Inject constructor(private val repository: DataRepository) : ViewModel() {
 
     /**
      * User list

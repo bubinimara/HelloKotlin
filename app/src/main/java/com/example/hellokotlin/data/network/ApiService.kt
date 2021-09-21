@@ -3,10 +3,7 @@ package com.example.hellokotlin.data.network
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.data.network.model.*
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 
 /**
@@ -31,6 +28,9 @@ interface ApiService {
 
     @POST("3/authentication/session/new")
     suspend fun createSessionId(@Body token:Token): SessionResponse
+
+    @GET("3/movie/{movie}/account_states")
+    suspend fun accountState(@Path("movie")movieId:Int,@Query("session_id")sessionId:String):Movie.AccountState
 
 
 }

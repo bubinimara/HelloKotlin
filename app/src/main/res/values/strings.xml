@@ -5,4 +5,5 @@
     <string name="username">username</string>
     <string name="movies">Movies</string>
     <string name="logout">logout</string>
+    <string name="not_rated">not rated</string>
 </resources>

@@ -3,6 +3,7 @@ package com.example.hellokotlin.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
@@ -103,9 +104,13 @@ class MainFragment : Fragment() {
             is Resource.Success ->{
                 resource.data?.let { rvMoviewAdaper.add(it) }
             }
-            is Resource.Error -> TODO()
-            is Resource.Loading -> TODO()
+            is Resource.Error -> showMessage("Error ${resource.error}")
+            is Resource.Loading -> showMessage("Loading")
         }
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(context,message,Toast.LENGTH_LONG).show()
     }
 }
 

@@ -19,15 +19,23 @@ import com.example.hellokotlin.data.util.AppUtils.ImageUtils
 class MovieAdapter():RecyclerView.Adapter<MovieAdapter.Holder>() {
     public class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title:TextView
+        val rate:TextView
         val image:ImageView
 
         init {
             title = itemView.findViewById(R.id.movie_title)
+            rate = itemView.findViewById(R.id.movie_rate)
             image = itemView.findViewById(R.id.movie_image)
         }
 
         fun set(movie:Movie){
             title.text = movie.title
+            movie.accountState?.rate.let {
+                if(it != null && it>0)
+                rate.text = it.toString()
+            }
+
+
             val imageUrlForMovie = ImageUtils.getImageUrlForMovie(movie)
             Glide.with(itemView)
                 .load(imageUrlForMovie)

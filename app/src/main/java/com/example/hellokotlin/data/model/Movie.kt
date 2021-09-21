@@ -1,5 +1,8 @@
 package com.example.hellokotlin.data.model
 
+import com.example.hellokotlin.data.network.json.AccountStateDeserializer
+import com.google.gson.annotations.JsonAdapter
+
 
 /**
  *
@@ -10,5 +13,10 @@ package com.example.hellokotlin.data.model
 data class Movie(
     val id:Int,
     val title:String,
-    var poster_path:String=""
-)
+    val poster_path:String="",
+    var accountState:AccountState ?= null
+){
+    @JsonAdapter(AccountStateDeserializer::class)
+    data class AccountState constructor(val id: Int=-1,val rate:Int=-1){
+    }
+}

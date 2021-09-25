@@ -7,6 +7,7 @@ import com.example.hellokotlin.data.db.AppDb
 import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.session.SessionManagerImpl
 import com.example.hellokotlin.data.network.NetworkServices
+import com.example.hellokotlin.data.network.cache.CacheManager
 import com.example.hellokotlin.data.util.AppUtils
 import dagger.Module
 import dagger.Provides
@@ -38,8 +39,13 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideDataRepository(networkServices: NetworkServices, sessionManager: SessionManager,appDb: AppDb):DataRepository{
-        return DataRepositoryImpl(networkServices.apiService,sessionManager,appDb)
+    fun provideCacheManger(@ApplicationContext context: Context,appDb: AppDb): CacheManager {
+        return CacheManager.getInstance(context,appDb)
+    }
+    @Provides
+    @Singleton
+    fun provideDataRepository(networkServices: NetworkServices, sessionManager: SessionManager,cacheManager: CacheManager):DataRepository{
+        return DataRepositoryImpl(networkServices.apiService,sessionManager,cacheManager)
     }
 
     @Provides

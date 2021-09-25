@@ -1,8 +1,6 @@
 package com.example.hellokotlin.data.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.example.hellokotlin.data.network.json.AccountStateDeserializer
 import com.google.gson.annotations.JsonAdapter
 
@@ -13,12 +11,18 @@ import com.google.gson.annotations.JsonAdapter
  *
  * A movie item
  */
+@Entity(tableName = "movies")
 data class Movie(
-    val id:Int,
-    val title:String,
-    val poster_path:String="",
-    var accountState:AccountState ?= null
+    @PrimaryKey val id:Int,
+    @ColumnInfo(name = "title") val title:String,
+    @ColumnInfo(name = "poster_path") val poster_path:String="",
+    @Ignore var accountState:AccountState ?= null
 ){
+    constructor(id:Int, title:String,poster_path:String="")
+            : this(id,title,poster_path,null){}
+
+
+
     @JsonAdapter(AccountStateDeserializer::class)
     @Entity(tableName = "account_state")
     data class AccountState constructor(

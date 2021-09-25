@@ -1,18 +1,17 @@
 package com.example.hellokotlin.data
 
 import android.util.Log
-import com.example.hellokotlin.data.db.AppDb
 import com.example.hellokotlin.data.session.Session
 import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.data.network.ApiService
+import com.example.hellokotlin.data.network.cache.CacheManager
 import com.example.hellokotlin.data.network.model.ConfigurationResponse
 import com.example.hellokotlin.data.network.model.LoginRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.math.log
 
 /**
  *
@@ -20,11 +19,12 @@ import kotlin.math.log
  */
 class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
                                      private val sessionManager: SessionManager,
-                                     private val appDb: AppDb
+                                     private val cacheManger: CacheManager
 ) : DataRepository {
 
-    private val movieDao = appDb.movieDao()
-
+    companion object{
+        private val TAG = "DataRepositoryImpl"
+    }
     override suspend fun configuration(): Resource<ConfigurationResponse> {
         return withContext(Dispatchers.IO){
             try {
@@ -68,30 +68,34 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     override suspend fun getMovies():Resource<List<Movie>>{
         return withContext(Dispatchers.IO){
             try {
-                val response = apiService.popularMovies()
-                val list = response.results?.toMutableList()
-                list.forEach {
-                    it.accountState = getAccountState(it)
+                Log.d(TAG, "getMovies: ")
+                var list = cacheManger.getMovies()
+                if(list==null || list.isNullOrEmpty()) {
+                    Log.d(TAG, "getMovies: FROM NET")
+                    val response = apiService.popularMovies()
+                    val netList = response.results?.toMutableList()
+                    netList.forEach {
+                        it.accountState = getAccountState(it)
+                    }
+                    cacheManger.updateMovies(netList)
+                    list = netList
                 }
                 Resource.Success(list)
             } catch (e: Exception) {
-                Log.e("DataRepository", "getPopularUsers: ",e )
+                Log.e(TAG, "getPopularUsers: ",e )
                 Resource.Error()
             }
         }
     }
 
-    suspend fun getAccountState(movie: Movie): Movie.AccountState? {
-        return  movieDao.getAccountState(movie.id) ?: run {
+    private suspend fun getAccountState(movie: Movie): Movie.AccountState? {
+        /*return  cacheManger.getAccountState(movie.id) ?: run {*/
             return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)?.let {
-                movieDao.inster(it)
+                //cacheManger.updateAccountState(it)
                 // return it
                 it
             }
 
-            // return
-
-        }
 
     }
 

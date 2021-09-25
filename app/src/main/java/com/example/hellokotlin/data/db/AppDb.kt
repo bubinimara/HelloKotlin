@@ -11,7 +11,8 @@ import com.example.hellokotlin.data.model.Movie
  * Created by Davide Parise on 21/09/21.
  */
 
-@Database(entities = [Movie.AccountState::class], version = 1, exportSchema = false)
+@Database(entities = [Movie::class,Movie.AccountState::class], version = 2, exportSchema = false)
+@AutoMigration(from = 0,to = 1)
 abstract class AppDb: RoomDatabase() {
     abstract fun movieDao() :MovieDao
 
@@ -21,6 +22,7 @@ abstract class AppDb: RoomDatabase() {
         fun getDb(context: Context):AppDb{
             return INSTANCE ?: synchronized(this){
                 val instance = Room.databaseBuilder(context.applicationContext, AppDb::class.java,"app_db")
+                    .fallbackToDestructiveMigration()
                     .build()
                 INSTANCE = instance
                 // return

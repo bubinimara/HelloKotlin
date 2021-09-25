@@ -1,10 +1,7 @@
 package com.example.hellokotlin.data.db
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
+import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
-import androidx.room.Query
 import com.example.hellokotlin.data.model.Movie
 import kotlinx.coroutines.selects.select
 
@@ -22,11 +19,30 @@ interface MovieDao {
     suspend fun insertAllAccountState(accountState: List<Movie.AccountState>)
 
     @Insert(onConflict = REPLACE)
-    suspend fun inster(accountState: Movie.AccountState)
+    suspend fun insertAccountState(accountState: Movie.AccountState)
 
     @Query("delete from account_state")
     suspend fun deleteAllAccountState()
 
     @Query("select * from account_state where id = :id")
     suspend fun getAccountState(id: Int): Movie.AccountState?
+
+    @Query("select * from movies")
+    suspend fun getMovies(): List<Movie>?
+
+    @Transaction
+    suspend fun getMoviesAndAccountState(): List<Movie>? {
+        val  movies = getMovies()
+        movies?.forEach {
+            it.accountState = getAccountState(it.id)
+        }
+        return movies
+    }
+    @Insert(onConflict = REPLACE)
+    suspend fun insertAllMovies(movies: List<Movie>)
+
+    @Query("delete from movies")
+    suspend fun deleteAllMovies()
+
+
 }

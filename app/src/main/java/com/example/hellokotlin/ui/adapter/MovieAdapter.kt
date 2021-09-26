@@ -16,7 +16,7 @@ import com.example.hellokotlin.data.util.AppUtils.ImageUtils
  *
  * Created by Davide Parise on 07/09/21.
  */
-class MovieAdapter():RecyclerView.Adapter<MovieAdapter.Holder>() {
+class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerView.Adapter<MovieAdapter.Holder>() {
     public class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title:TextView
         val rate:TextView
@@ -28,7 +28,11 @@ class MovieAdapter():RecyclerView.Adapter<MovieAdapter.Holder>() {
             image = itemView.findViewById(R.id.movie_image)
         }
 
-        fun set(movie:Movie){
+        fun set(movie:Movie,listener: AdapterClickListener<Movie>?){
+            itemView.setOnClickListener {
+                listener?.onItemClicked(movie)
+            }
+
             title.text = movie.title
             movie.accountState?.rate.let {
                 if(it != null && it>0)
@@ -53,7 +57,7 @@ class MovieAdapter():RecyclerView.Adapter<MovieAdapter.Holder>() {
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.set(items[position])
+        holder.set(items[position],listener)
     }
 
     override fun getItemCount(): Int {

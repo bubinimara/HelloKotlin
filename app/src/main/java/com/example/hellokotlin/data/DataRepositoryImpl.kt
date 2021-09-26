@@ -68,17 +68,14 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     override suspend fun getMovies():Resource<List<Movie>>{
         return withContext(Dispatchers.IO){
             try {
-                Log.d(TAG, "getMovies: ")
                 var list = cacheManger.getMovies()
                 if(list==null || list.isNullOrEmpty()) {
-                    Log.d(TAG, "getMovies: FROM NET")
                     val response = apiService.popularMovies()
-                    val netList = response.results?.toMutableList()
-                    netList.forEach {
+                    list = response.results?.toMutableList()
+                    list.forEach {
                         it.accountState = getAccountState(it)
                     }
-                    cacheManger.updateMovies(netList)
-                    list = netList
+                    cacheManger.updateMovies(list)
                 }
                 Resource.Success(list)
             } catch (e: Exception) {
@@ -89,14 +86,7 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     }
 
     private suspend fun getAccountState(movie: Movie): Movie.AccountState? {
-        /*return  cacheManger.getAccountState(movie.id) ?: run {*/
-            return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)?.let {
-                //cacheManger.updateAccountState(it)
-                // return it
-                it
-            }
-
-
+        return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)
     }
 
     override suspend fun getPopularUsers():Resource<List<User>>{

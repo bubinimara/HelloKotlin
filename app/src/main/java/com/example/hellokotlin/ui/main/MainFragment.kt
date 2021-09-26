@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hellokotlin.R
@@ -13,6 +14,7 @@ import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
+import com.example.hellokotlin.ui.adapter.AdapterClickListener
 import com.example.hellokotlin.ui.adapter.MovieAdapter
 import com.example.hellokotlin.ui.adapter.UsersAdapter
 import com.example.hellokotlin.ui.login.LoginActivity
@@ -30,7 +32,13 @@ class MainFragment : Fragment() {
 
     private var rvUsersAdapter = UsersAdapter()
 
-    private var rvMoviewAdaper = MovieAdapter()
+    private var rvMoviewAdaper = MovieAdapter(object : AdapterClickListener<Movie> {
+        override fun onItemClicked(item: Movie) {
+            val action =
+                MainFragmentDirections.movieDetailAction(item.id)
+            findNavController().navigate(action)
+        }
+    })
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

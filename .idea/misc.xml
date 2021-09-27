@@ -5,6 +5,7 @@
       <map>
         <entry key="app/src/main/res/drawable/circel_bg.xml" value="0.2140625" />
         <entry key="app/src/main/res/layout/fragment_detail.xml" value="0.2898550724637681" />
+        <entry key="app/src/main/res/layout/fragment_movie.xml" value="0.28351449275362317" />
         <entry key="app/src/main/res/layout/login_fragment.xml" value="0.19791666666666666" />
         <entry key="app/src/main/res/layout/main_activity.xml" value="0.32518115942028986" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.1" />

@@ -62,6 +62,11 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
         movieDao.insertAccountState(accountState)
     }
 
+    // TODO: add in memory cache and get from there
+    suspend fun getMoviesById(id: Int):Movie? {
+        return movieDao.getMoviesById(id)
+    }
+
     class CacheValidator(context: Context){
         val sharedPref:SharedPreferences
         init {

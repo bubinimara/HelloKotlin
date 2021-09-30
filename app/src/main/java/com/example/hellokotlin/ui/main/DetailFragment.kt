@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.navArgs
-import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.databinding.FragmentDetailBinding
@@ -20,6 +18,7 @@ class DetailFragment : Fragment() {
 
     private lateinit var viewBinding: FragmentDetailBinding
     private lateinit var viewModel: DetailViewModel
+    private var movieId:Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,13 +31,15 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val args = arguments?.let { DetailFragmentArgs.fromBundle(it) }
-        val movieId = args?.movieId
+        args?.movieId?.let {
+            movieId = it
+        }
 
         viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
         viewModel.movies.observe(viewLifecycleOwner, Observer {
             renderView(it)
         })
-        viewModel.getMovies()
+        viewModel.load(savedInstanceState != null)
     }
 
     private fun renderView(it: Resource<List<Movie>>) {
@@ -48,8 +49,18 @@ class DetailFragment : Fragment() {
             is Resource.Success -> {
                 it.data?.let { movies ->
                     viewBinding.pager.adapter = DetailStateAdapter(this, movies)
+                    viewBinding.pager.setCurrentItem(  findPositionById(movies,movieId),false)
                 }
             }
         }
     }
+
+    private fun findPositionById(movies:List<Movie>,movieId: Int): Int {
+        for (i in 0..movies.size ){
+            if(movies[i].id == movieId)
+                return i
+        }
+        return 0
+    }
+
 }

@@ -49,6 +49,11 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         return Resource.Success(true)
     }
 
+    override suspend fun getMovieById(id:Int): Resource<Movie> {
+        val data = cacheManger.getMoviesById(id) ?: return Resource.Error()
+        return  Resource.Success(data)
+    }
+
     override suspend fun login(username:String, password:String):Resource<User> {
          return withContext(Dispatchers.IO) {
              val requestToken: String = apiService.requestToken().request_token

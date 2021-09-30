@@ -5,28 +5,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.example.hellokotlin.R
+import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.databinding.FragmentMovieBinding
+import dagger.hilt.android.AndroidEntryPoint
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val ARG_ID = "arg_id"
 
 /**
  * A simple [Fragment] subclass.
  * Use the [MovieFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class MovieFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private var id: Int? = null
+
+    private lateinit var viewModel:DetailViewModel
+    private lateinit var viewBinding:FragmentMovieBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            id = it.getInt(ARG_ID)
         }
     }
 
@@ -34,24 +37,32 @@ class MovieFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_movie, container, false)
+        viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+        viewBinding = FragmentMovieBinding.inflate(inflater,container,false)
+        return viewBinding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is Resource.Error -> TODO()
+                is Resource.Loading -> TODO()
+                is Resource.Success -> {
+                    viewBinding.title.text = it.data?.title
+                }
+            }
+
+        })
+        id?.let { viewModel.getMovieById(it) }
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @return A new instance of fragment MovieFragment.
-         */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
-        fun newInstance(param1: Int) =
+        fun newInstance(id: Int) =
             MovieFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(ARG_PARAM1,param1)
+                    putInt(ARG_ID,id)
                 }
             }
     }

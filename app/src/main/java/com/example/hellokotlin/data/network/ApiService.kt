@@ -32,5 +32,8 @@ interface ApiService {
     @GET("3/movie/{movie}/account_states")
     suspend fun accountState(@Path("movie")movieId:Int,@Query("session_id")sessionId:String):Movie.AccountState
 
+    @POST("3/movie/{movie}/rating")
+    suspend fun rateMovie(@Path("movie")movieId: Int,@Query("session_id")sessionId:String, @Body rateRequest: RateRequest):RateResponse
+
 
 }

@@ -8,4 +8,8 @@
     <string name="not_rated">not rated</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_overview">No Overview</string>
+    <string name="btn_rate">Rate</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="dialog_rate_title">Rate Movie</string>
 </resources>

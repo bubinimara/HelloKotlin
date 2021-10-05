@@ -16,10 +16,11 @@ data class Movie(
     @PrimaryKey val id:Int,
     @ColumnInfo(name = "title") val title:String,
     @ColumnInfo(name = "poster_path") val poster_path:String="",
+    @ColumnInfo(name = "overview") val overview:String="",
     @Ignore var accountState:AccountState ?= null
 ){
-    constructor(id:Int, title:String,poster_path:String="")
-            : this(id,title,poster_path,null){}
+    constructor(id:Int, title:String,poster_path:String="",overview:String="")
+            : this(id,title,poster_path,overview,null)
 
 
 

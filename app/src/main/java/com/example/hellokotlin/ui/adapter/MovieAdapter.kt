@@ -69,4 +69,12 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerVi
         items.addAll(movies)
         notifyItemRangeInserted(size,movies.size)
     }
+
+    fun clear(){
+        val  size = items.size
+        if(size>0){
+            items.clear()
+            notifyItemRangeRemoved(0,size)
+        }
+    }
 }

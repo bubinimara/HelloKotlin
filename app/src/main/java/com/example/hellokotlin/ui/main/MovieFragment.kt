@@ -7,9 +7,13 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.data.model.Movie
+import com.example.hellokotlin.data.util.AppUtils
 import com.example.hellokotlin.databinding.FragmentMovieBinding
+import com.example.hellokotlin.ui.dialog.RateDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val ARG_ID = "arg_id"
@@ -25,6 +29,16 @@ class MovieFragment : Fragment() {
 
     private lateinit var viewModel:DetailViewModel
     private lateinit var viewBinding:FragmentMovieBinding
+
+    companion object {
+        @JvmStatic
+        fun newInstance(id: Int) =
+            MovieFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ARG_ID,id)
+                }
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,25 +59,35 @@ class MovieFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
-            when(it){
-                is Resource.Error -> TODO()
-                is Resource.Loading -> TODO()
-                is Resource.Success -> {
-                    viewBinding.title.text = it.data?.title
-                }
-            }
+            renderData(it)
 
         })
+        viewBinding.fab.setOnClickListener {
+        kotlin.runCatching {
+            id?.let { it1 -> RateDialogFragment.getInstance(it1).show(parentFragmentManager, "RateDialog") }
+        }
+        }
+        // load
         id?.let { viewModel.getMovieById(it) }
     }
 
-    companion object {
-        @JvmStatic
-        fun newInstance(id: Int) =
-            MovieFragment().apply {
-                arguments = Bundle().apply {
-                    putInt(ARG_ID,id)
+    private fun renderData(it: Resource<Movie>) {
+        when (it) {
+            is Resource.Error -> TODO()
+            is Resource.Loading -> TODO()
+            is Resource.Success -> {
+                it.data?.let { movie ->
+                    viewBinding.title.text = movie.title
+                    movie.accountState?.let { accountState ->
+                        viewBinding.rate.text = accountState.rate.toString()
+                    }
+                    viewBinding.description.text = movie.overview
+                    Glide.with(viewBinding.image)
+                        .load(AppUtils.ImageUtils.getImageUrlForMovie(movie))
+                        .into(viewBinding.image)
+
                 }
             }
+        }
     }
 }

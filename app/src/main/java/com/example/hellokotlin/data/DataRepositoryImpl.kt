@@ -9,6 +9,7 @@ import com.example.hellokotlin.data.network.ApiService
 import com.example.hellokotlin.data.network.cache.CacheManager
 import com.example.hellokotlin.data.network.model.ConfigurationResponse
 import com.example.hellokotlin.data.network.model.LoginRequest
+import com.example.hellokotlin.data.network.model.RateRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -18,8 +19,8 @@ import javax.inject.Inject
  * Created by Davide Parise on 30/08/21.
  */
 class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
-                                     private val sessionManager: SessionManager,
-                                     private val cacheManger: CacheManager
+                                             private val sessionManager: SessionManager,
+                                             private val cacheManger: CacheManager
 ) : DataRepository {
 
     companion object{
@@ -35,7 +36,7 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }
     }
 
-     override suspend fun loadLastSession():Resource<User>{
+    override suspend fun loadLastSession():Resource<User>{
         val session = sessionManager.loadSession()
         var user:User ?= null
         if(session.isValid()){
@@ -50,23 +51,45 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     }
 
     override suspend fun getMovieById(id:Int): Resource<Movie> {
-        val data = cacheManger.getMoviesById(id) ?: return Resource.Error()
+        // if is not in cache than there's some problem
+        val data = cacheManger.getMovieById(id) ?: return Resource.Error()
         return  Resource.Success(data)
     }
 
+    override suspend fun rateMovie(movieId: Int,rate:Int): Resource<Movie> {
+        return withContext(Dispatchers.IO){
+            try {
+                apiService.rateMovie(movieId,sessionManager.loadSession().sessionId, RateRequest(rate))
+                val movie = cacheManger.getMovieById(movieId)
+                    ?: throw Exception("No movie Found with id $movieId")
+
+                updateAccountState(movie)// go to catch
+                Log.d(TAG, "rateMovie: ACCOUNT STATE IS ${movie.accountState}")
+                cacheManger.updateAccountState(movie.accountState)
+                Resource.Success(movie)
+
+            }catch (e:Exception){
+                Log.e(TAG, "rateMovie: ",e )
+                Resource.Error()
+            }
+
+        }
+
+    }
+
     override suspend fun login(username:String, password:String):Resource<User> {
-         return withContext(Dispatchers.IO) {
-             val requestToken: String = apiService.requestToken().request_token
-             val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
-             val sessionIdResponse = apiService.createSessionId(tokenResponse)
-             if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
-                 Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
-             }else {
-                 val s = Session(username, sessionIdResponse.sessionId)
-                 sessionManager.storeSession(s)
-                 Resource.Success(User(name = username))
-             }
-         }
+        return withContext(Dispatchers.IO) {
+            val requestToken: String = apiService.requestToken().request_token
+            val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
+            val sessionIdResponse = apiService.createSessionId(tokenResponse)
+            if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
+                Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
+            }else {
+                val s = Session(username, sessionIdResponse.sessionId)
+                sessionManager.storeSession(s)
+                Resource.Success(User(name = username))
+            }
+        }
 
     }
 
@@ -90,8 +113,12 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }
     }
 
+    @Deprecated("use updateAccountState ")
     private suspend fun getAccountState(movie: Movie): Movie.AccountState? {
         return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)
+    }
+    private suspend fun updateAccountState(movie: Movie) {
+        movie.accountState = apiService.accountState(movie.id,sessionManager.loadSession().sessionId)
     }
 
     override suspend fun getPopularUsers():Resource<List<User>>{

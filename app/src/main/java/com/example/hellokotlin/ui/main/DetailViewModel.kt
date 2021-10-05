@@ -1,5 +1,6 @@
 package com.example.hellokotlin.ui.main
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,8 +20,8 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(val dataRepository: DataRepository): ViewModel() {
 
+    // TODO: pass arguments with saved state - and try to  remove id param
     val movies = MutableLiveData<Resource<List<Movie>>>()
-
     val currentMovie = MutableLiveData<Resource<Movie>>()
 
     fun load(isRecreated: Boolean) {
@@ -36,6 +37,14 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
     fun getMovieById(id:Int){
         viewModelScope.launch {
             currentMovie.value = dataRepository.getMovieById(id)
+        }
+    }
+
+    fun rateMovie(movieId: Int,rate:Int) {
+        viewModelScope.launch {
+            Log.d("MYTAG", "rateMovie: $rate")
+            currentMovie.value = Resource.Loading()
+            currentMovie.value = dataRepository.rateMovie(movieId,rate)
         }
     }
 }

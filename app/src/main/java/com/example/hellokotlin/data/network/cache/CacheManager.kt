@@ -58,12 +58,12 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
         return movieDao.getAccountState(id)
     }
 
-    suspend fun updateAccountState(accountState: Movie.AccountState) {
-        movieDao.insertAccountState(accountState)
+    suspend fun updateAccountState(accountState: Movie.AccountState?) {
+        accountState?.let { movieDao.insertAccountState(it) }
     }
 
     // TODO: add in memory cache and get from there
-    suspend fun getMoviesById(id: Int):Movie? {
+    suspend fun getMovieById(id: Int):Movie? {
         return movieDao.getMoviesById(id)
     }
 

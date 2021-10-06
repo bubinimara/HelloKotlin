@@ -69,14 +69,14 @@ class RateDialogFragment:DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
+        viewModel.ratingResult.observe(viewLifecycleOwner, Observer {
             dialog?.let {dialog ->
                 when(it){
                     is Resource.Error ->{
                         Log.e("RateDialog", "Rating movie error: " )
                     }
                     is Resource.Success ->{
-                        Log.d("RateDialog", "movie Rated: " )
+                        Log.d("RateDialog", "movie Rated: "+it.data)
                         dialog.dismiss()
                     }
                 }

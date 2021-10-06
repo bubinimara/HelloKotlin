@@ -5,6 +5,8 @@ import android.content.SharedPreferences
 import com.example.hellokotlin.data.db.AppDb
 import com.example.hellokotlin.data.db.MovieDao
 import com.example.hellokotlin.data.model.Movie
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
 
@@ -44,14 +46,8 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
 
     suspend fun updateMovies(movies:List<Movie>){
         // clear all
-        movieDao.deleteAllMovies()
-        movieDao.deleteAllAccountState()
-        // update
+        movieDao.updateAllMovies(movies)
         cacheValidator.updateMovieCache()
-        movieDao.insertAllMovies(movies)
-        movies.forEach {
-            movie -> movie.accountState?.let { movieDao.insertAccountState(it) }
-        }
     }
 
     suspend fun getAccountState(id:Int,force:Boolean = false): Movie.AccountState? {
@@ -62,11 +58,21 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
         accountState?.let { movieDao.insertAccountState(it) }
     }
 
-    // TODO: add in memory cache and get from there
-    suspend fun getMovieById(id: Int):Movie? {
+    suspend fun getMovieByIdAsFlow(id: Int): Flow<Movie?> {
+        return movieDao.getMoviesByIdAsFlow(id).map {
+            it?.apply {
+                accountState = movieDao.getAccountState(id)
+            }
+        }
+    }
+    suspend fun getMovieById(id: Int): Movie? {
         return movieDao.getMoviesById(id)?.apply {
             accountState = movieDao.getAccountState(id)
         }
+    }
+
+    suspend fun updateMovieAndAccountState(movie: Movie) {
+        movieDao.updateMovieAndAccountState(movie)
     }
 
     class CacheValidator(context: Context){

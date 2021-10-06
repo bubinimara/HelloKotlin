@@ -9,6 +9,7 @@ import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,6 +24,7 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
     // TODO: pass arguments with saved state - and try to  remove id param
     val movies = MutableLiveData<Resource<List<Movie>>>()
     val currentMovie = MutableLiveData<Resource<Movie>>()
+    val ratingResult = MutableLiveData<Resource<Boolean>>()
 
     fun load(isRecreated: Boolean) {
         if(isRecreated)
@@ -36,15 +38,16 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
 
     fun getMovieById(id:Int){
         viewModelScope.launch {
-            currentMovie.value = dataRepository.getMovieById(id)
+            dataRepository.getMovieById(id).collect {
+                currentMovie.value = it
+            }
         }
     }
 
     fun rateMovie(movieId: Int,rate:Int) {
         viewModelScope.launch {
             Log.d("MYTAG", "rateMovie: $rate")
-            currentMovie.value = Resource.Loading()
-            currentMovie.value = dataRepository.rateMovie(movieId,rate)
+            ratingResult.value = dataRepository.rateMovie(movieId,rate)
         }
     }
 }

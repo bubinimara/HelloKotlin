@@ -64,7 +64,9 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
 
     // TODO: add in memory cache and get from there
     suspend fun getMovieById(id: Int):Movie? {
-        return movieDao.getMoviesById(id)
+        return movieDao.getMoviesById(id)?.apply {
+            accountState = movieDao.getAccountState(id)
+        }
     }
 
     class CacheValidator(context: Context){

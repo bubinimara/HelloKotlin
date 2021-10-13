@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.savedstate.SavedStateRegistry
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
@@ -46,10 +45,11 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
         }
     }
 
-    fun rateMovie(movieId: Int,rate:Int) {
+    fun rateMovie(movieId: Int, rate: Float) {
         viewModelScope.launch {
-            Log.d("MYTAG", "rateMovie: $rate")
-            ratingResult.value = dataRepository.rateMovie(movieId,rate*2)
+            val r = (rate*2).toInt()
+            Log.d("MYTAG", "rateMovie: $rate and r = $r ")
+            ratingResult.value = dataRepository.rateMovie(movieId, r)
         }
     }
 }

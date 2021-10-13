@@ -51,11 +51,6 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
                 users.value = it
             }
             repository.getMovies().collect {
-                Log.d("MainViewModel", "refresh: ")
-                it.data?.forEach {
-                    Log.d("MainViewModel", "refresh: data {${it.title}}")
-                }
-                Log.d("MainViewModel", "******** ")
                 movies.value = it
             }
         }

@@ -1,22 +1,16 @@
 package com.example.hellokotlin.ui.dialog
 
-import android.app.AlertDialog
-import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RatingBar
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.databinding.RateDialogBinding
 import com.example.hellokotlin.ui.main.DetailViewModel
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -36,11 +30,11 @@ class RateDialogFragment:DialogFragment() {
             return RateDialogFragment().apply {
                 arguments = args
             }
-
         }
     }
 
     private var movieId:Int = NO_MOVIE_ID
+
     private lateinit var viewModel: DetailViewModel
     private lateinit var viewBinding: RateDialogBinding
 
@@ -53,9 +47,7 @@ class RateDialogFragment:DialogFragment() {
     }
 
     private fun rateMovie() {
-        dialog?.let {
-            viewModel.rateMovie(movieId,viewBinding.ratingBar.numStars)
-        }
+        viewModel.rateMovie(movieId,viewBinding.ratingBar.rating)
     }
 
     override fun onCreateView(
@@ -69,6 +61,11 @@ class RateDialogFragment:DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
+            val rate =
+            viewBinding.ratingBar.rating = if(rate in 0..10)(rate/2.0).toFloat() else 0.0F
+        })
         viewModel.ratingResult.observe(viewLifecycleOwner, Observer {
             dialog?.let {dialog ->
                 when(it){
@@ -76,11 +73,9 @@ class RateDialogFragment:DialogFragment() {
                         Log.e("RateDialog", "Rating movie error: " )
                     }
                     is Resource.Success ->{
-                        Log.d("RateDialog", "movie Rated: "+it.data)
                         dialog.dismiss()
                     }
                 }
-
             }
         })
         viewBinding.btnCancel.setOnClickListener {

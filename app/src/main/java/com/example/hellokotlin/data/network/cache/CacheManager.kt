@@ -39,14 +39,6 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
         }
     }
 
-    suspend fun getMovies(force: Boolean = false): List<Movie>? {
-        if(force || cacheValidator.isValidMovieCache() ){
-            return movieDao.getMoviesAndAccountState()
-        }
-
-        return null
-    }
-
      suspend fun getMoviesAsFlow(force: Boolean = false): Flow<List<Movie>?> {
         return movieDao.getMoviesAndAccountStateAsFlow()
     }
@@ -74,7 +66,11 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
     }
 
     suspend fun addMovie(movie: Movie) {
-        movieDao.addMovie(movie)
+        movieDao.insertMovie(movie)
+    }
+
+    suspend fun updateAccountState(accountState: Movie.AccountState) {
+        movieDao.insertAccountState(accountState)
     }
 
     class CacheValidator(context: Context){

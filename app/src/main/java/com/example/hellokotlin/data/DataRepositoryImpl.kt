@@ -115,15 +115,22 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     }
 
     override suspend fun rateMovie(movieId: Int,rate:Int): Resource<Boolean> {
+        apiService.rateMovie(movieId, sessionManager.loadSession().sessionId, RateRequest(rate))
+        val state = apiService.accountState(movieId,sessionManager.loadSession().sessionId)
+        cacheManger.updateAccountState(state)
+        return Resource.Success(true)
+    }
+     suspend fun rateMovie2(movieId: Int,rate:Int): Flow<Resource<Boolean>> {
+
         apiService.rateMovie(movieId,sessionManager.loadSession().sessionId, RateRequest(rate))
-        return cacheManger.getMovieById(movieId)?.apply {
+        cacheManger.getMovieById(movieId)?.apply {
             // fetch new rate from the net
             accountState = apiService.accountState(id,sessionManager.loadSession().sessionId)
             cacheManger.updateMovieAndAccountState(this)
         }.let {
-            return Resource.Success(it!=null)
+            Resource.Success(it!=null)
         }
-
+         return emptyFlow()
     }
 
     /********************************************************/

@@ -6,6 +6,7 @@ import com.example.hellokotlin.data.db.AppDb
 import com.example.hellokotlin.data.db.MovieDao
 import com.example.hellokotlin.data.model.Movie
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
@@ -37,11 +38,17 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
             }
         }
     }
+
     suspend fun getMovies(force: Boolean = false): List<Movie>? {
         if(force || cacheValidator.isValidMovieCache() ){
             return movieDao.getMoviesAndAccountState()
         }
+
         return null
+    }
+
+     suspend fun getMoviesAsFlow(force: Boolean = false): Flow<List<Movie>?> {
+        return movieDao.getMoviesAndAccountStateAsFlow()
     }
 
     suspend fun updateMovies(movies:List<Movie>){
@@ -50,20 +57,8 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
         cacheValidator.updateMovieCache()
     }
 
-    suspend fun getAccountState(id:Int,force:Boolean = false): Movie.AccountState? {
-        return movieDao.getAccountState(id)
-    }
-
-    suspend fun updateAccountState(accountState: Movie.AccountState?) {
-        accountState?.let { movieDao.insertAccountState(it) }
-    }
-
     suspend fun getMovieByIdAsFlow(id: Int): Flow<Movie?> {
-        return movieDao.getMoviesByIdAsFlow(id).map {
-            it?.apply {
-                accountState = movieDao.getAccountState(id)
-            }
-        }
+        return movieDao.getMovieAndAccountStateByIdAsFlow(id)
     }
     suspend fun getMovieById(id: Int): Movie? {
         return movieDao.getMoviesById(id)?.apply {
@@ -73,6 +68,13 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
 
     suspend fun updateMovieAndAccountState(movie: Movie) {
         movieDao.updateMovieAndAccountState(movie)
+    }
+    suspend fun getAccountState(movie: Movie): Movie.AccountState? {
+        return movieDao.getAccountState(movie.id)
+    }
+
+    suspend fun addMovie(movie: Movie) {
+        movieDao.addMovie(movie)
     }
 
     class CacheValidator(context: Context){

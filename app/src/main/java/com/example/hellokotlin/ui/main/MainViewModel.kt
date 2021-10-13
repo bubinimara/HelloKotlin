@@ -1,5 +1,6 @@
 package com.example.hellokotlin.ui.main
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,13 +33,14 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
     /**
      * Movies List
      */
-    val movies: MutableLiveData<Resource<List<Movie>>> by lazy {
+    val movies = MutableLiveData<Resource<List<Movie>>>()
+  /*  val movies: MutableLiveData<Resource<List<Movie>>> by lazy {
         MutableLiveData<Resource<List<Movie>>>().also {
             viewModelScope.launch {
                 repository.getMovies()
             }
         }
-    }
+    }*/
 
     val actionLogout = MutableLiveData<Resource<Boolean>>()
 
@@ -47,7 +50,12 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
             repository.getPopularUsers().also {
                 users.value = it
             }
-            repository.getMovies().also {
+            repository.getMovies().collect {
+                Log.d("MainViewModel", "refresh: ")
+                it.data?.forEach {
+                    Log.d("MainViewModel", "refresh: data {${it.title}}")
+                }
+                Log.d("MainViewModel", "******** ")
                 movies.value = it
             }
         }
@@ -57,6 +65,14 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
         viewModelScope.launch {
             repository.logout()
             actionLogout.value = Resource.Success(true)
+        }
+    }
+
+    fun rateTest() {
+        viewModelScope.launch {
+            val id = movies.value!!.data?.get(1)!!.id
+            repository.rateMovie(id,7)
+            repository.addMovie(Movie(1,"test"))
         }
     }
 }

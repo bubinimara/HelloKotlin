@@ -3,7 +3,7 @@ package com.example.hellokotlin.data.db
 import androidx.room.*
 import androidx.room.OnConflictStrategy.REPLACE
 import com.example.hellokotlin.data.model.Movie
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.selects.select
 
 
@@ -12,7 +12,7 @@ import kotlinx.coroutines.selects.select
  * Created by Davide Parise on 21/09/21.
  */
 @Dao
-interface MovieDao {
+ interface MovieDao {
     @Query("select * from account_state ")
     suspend fun getAllAccountState():List<Movie.AccountState>
 
@@ -34,6 +34,7 @@ interface MovieDao {
     @Query("select * from account_state where id = :id")
     suspend fun getAccountState(id: Int): Movie.AccountState?
 
+
     @Query("select * from movies")
     suspend fun getMovies(): List<Movie>?
 
@@ -45,6 +46,34 @@ interface MovieDao {
         }
         return movies
     }
+
+    @Query("select * from movies")
+    fun getMoviesAsFlow():Flow<List<Movie>?>
+
+    @Query("select * from movies where id=:id" )
+    fun getMoviesByIdAsFlow(id: Int): Flow<Movie?>
+
+    @Transaction
+    fun getMovieAndAccountStateByIdAsFlow(id: Int): Flow<Movie?>{
+        return getMoviesByIdAsFlow(id).map {
+            it?.apply {
+                accountState = getAccountState(id)
+            }
+        }
+    }
+
+    @Transaction
+    suspend fun getMoviesAndAccountStateAsFlow(): Flow<List<Movie>?>{
+        return getMoviesAsFlow().map {
+            it?.forEach { movie ->
+                movie.accountState = getAccountState(movie.id)
+            }
+            it
+        }
+    }
+
+
+
     @Insert(onConflict = REPLACE)
     suspend fun insertAllMovies(movies: List<Movie>)
 
@@ -54,8 +83,6 @@ interface MovieDao {
     @Query("delete from movies")
     suspend fun deleteAllMovies()
 
-    @Query("select * from movies where id=:id" )
-    fun getMoviesByIdAsFlow(id: Int): Flow<Movie?>
 
     @Query("select * from movies where id=:id" )
     suspend fun getMoviesById(id: Int): Movie?
@@ -74,6 +101,10 @@ interface MovieDao {
         insertMovie(movie)
         movie.accountState?.let { insertAccountState(it) }
     }
+
+    @Insert(onConflict = REPLACE)
+    suspend fun addMovie(movie: Movie)
+
 
 
 }

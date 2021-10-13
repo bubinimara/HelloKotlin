@@ -31,7 +31,9 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
             return
 
          viewModelScope.launch{
-            movies.value = dataRepository.getMovies()
+             dataRepository.getMovies().collect {
+                 movies.value = it
+            }
         }
 
     }
@@ -47,7 +49,7 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
     fun rateMovie(movieId: Int,rate:Int) {
         viewModelScope.launch {
             Log.d("MYTAG", "rateMovie: $rate")
-            ratingResult.value = dataRepository.rateMovie(movieId,rate)
+            ratingResult.value = dataRepository.rateMovie(movieId,rate*2)
         }
     }
 }

@@ -12,6 +12,7 @@ import com.example.hellokotlin.data.network.model.LoginRequest
 import com.example.hellokotlin.data.network.model.RateRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -27,6 +28,11 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     companion object{
         private val TAG = "DataRepositoryImpl"
     }
+
+    /********************************************************/
+    /********************* GLOBAL ***************************/
+    /********************************************************/
+
     override suspend fun configuration(): Resource<ConfigurationResponse> {
         return withContext(Dispatchers.IO){
             try {
@@ -45,24 +51,9 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }
         return Resource.Success(user)
     }
-
-    override suspend fun logout(): Resource<Boolean> {
-        sessionManager.clear()
-        return Resource.Success(true)
-    }
-
-    override suspend fun getMovieById(id:Int): Flow<Resource<Movie>> {
-        // if is not in cache than there's some problem
-        return cacheManger.getMovieByIdAsFlow(id)
-            .map {
-                Resource.Success(it)
-            }.catch {
-                Resource.Error<Movie>()
-            }
-            .flowOn(Dispatchers.IO)
-    }
-
-
+    /********************************************************/
+    /********************* LOGIN ****************************/
+    /********************************************************/
     override suspend fun login(username:String, password:String):Resource<User> {
         return withContext(Dispatchers.IO) {
             val requestToken: String = apiService.requestToken().request_token
@@ -79,34 +70,65 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
 
     }
 
-    override suspend fun getMovies():Resource<List<Movie>>{
-        return withContext(Dispatchers.IO){
-            try {
-                var list = cacheManger.getMovies()
-                if(list==null || list.isNullOrEmpty()) {
-                    val response = apiService.popularMovies()
-                    list = response.results?.toMutableList()
+    override suspend fun logout(): Resource<Boolean> {
+        sessionManager.clear()
+        return Resource.Success(true)
+    }
 
-                    list.forEach {
-                        it.accountState = getAccountState(it)
-                    }
-                    cacheManger.updateMovies(list)
-                }
-                Resource.Success(list)
-            } catch (e: Exception) {
-                Log.e(TAG, "getPopularUsers: ",e )
-                Resource.Error()
+    /********************************************************/
+    /********************* MOVIES ***************************/
+    /********************************************************/
+
+    override suspend fun addMovie(movie: Movie) {
+        cacheManger.addMovie(movie)
+    }
+
+    override suspend fun getMovieById(id:Int): Flow<Resource<Movie>> {
+        // if is not in cache than there's some problem
+        return cacheManger.getMovieByIdAsFlow(id)
+            .map {
+                Resource.Success(it)
+            }.catch {
+                Resource.Error<Movie>()
             }
-        }
+            .flowOn(Dispatchers.IO)
     }
 
-    private suspend fun getAccountState(movie: Movie): Movie.AccountState? {
-        return apiService.accountState(movie.id,sessionManager.loadSession().sessionId)
+    override suspend fun getMovies():Flow<Resource<List<Movie>>>{
+        return flow {
+            if(!cacheManger.cacheValidator.isValidMovieCache()) {
+                emit(Resource.Loading(cacheManger.getMoviesAsFlow().firstOrNull()))
+                val response = apiService.popularMovies()
+                val list = response.results?.toMutableList()
+                list.forEach {
+                    it.accountState =
+                        apiService.accountState(it.id, sessionManager.loadSession().sessionId)
+                }
+                cacheManger.updateMovies(list)
+            }
+            val dbElements = cacheManger.getMoviesAsFlow()
+                .map {
+                    Resource.Success(it)
+                }
+            emitAll(dbElements)
+        }.flowOn(Dispatchers.IO)
     }
-    private suspend fun updateMovieAndAccountState(movie: Movie) {
-        movie.accountState = apiService.accountState(movie.id,sessionManager.loadSession().sessionId)
-        cacheManger.updateMovieAndAccountState(movie)
+
+    override suspend fun rateMovie(movieId: Int,rate:Int): Resource<Boolean> {
+        apiService.rateMovie(movieId,sessionManager.loadSession().sessionId, RateRequest(rate))
+        return cacheManger.getMovieById(movieId)?.apply {
+            // fetch new rate from the net
+            accountState = apiService.accountState(id,sessionManager.loadSession().sessionId)
+            cacheManger.updateMovieAndAccountState(this)
+        }.let {
+            return Resource.Success(it!=null)
+        }
+
     }
+
+    /********************************************************/
+    /*********************** USERS **************************/
+    /********************************************************/
 
     override suspend fun getPopularUsers():Resource<List<User>>{
         return withContext(Dispatchers.IO){
@@ -119,15 +141,6 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }
     }
 
-    override suspend fun rateMovie(movieId: Int,rate:Int): Resource<Boolean> {
-        apiService.rateMovie(movieId,sessionManager.loadSession().sessionId, RateRequest(rate))
-        return cacheManger.getMovieById(movieId)?.apply {
-            updateMovieAndAccountState(this)
-        }.let {
-            return Resource.Success(it!=null)
-        }
-
-    }
 
 
 }

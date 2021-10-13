@@ -89,6 +89,10 @@ class MainFragment : Fragment() {
         when(item.itemId){
             R.id.action_logout ->{
                 // todo: show dialog
+                if(true){
+                viewModel.rateTest()
+                    return true
+                }
                 viewModel.logout()
                 goToLogin()
                 return true
@@ -110,7 +114,7 @@ class MainFragment : Fragment() {
     private fun renderViewMovies(resource: Resource<List<Movie>>) {
         when(resource){
             is Resource.Success ->{
-                resource.data?.let { rvMoviewAdaper.add(it) }
+                resource.data?.let { rvMoviewAdaper.set(it) }
             }
             is Resource.Error -> showMessage("Error ${resource.error}")
             is Resource.Loading -> showMessage("Loading")

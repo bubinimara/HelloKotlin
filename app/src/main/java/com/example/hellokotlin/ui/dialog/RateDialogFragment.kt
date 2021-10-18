@@ -36,7 +36,9 @@ class RateDialogFragment:DialogFragment() {
     private var movieId:Int = NO_MOVIE_ID
 
     private lateinit var viewModel: DetailViewModel
-    private lateinit var viewBinding: RateDialogBinding
+    private var _viewBinding: RateDialogBinding? = null
+    private val viewBinding get() = _viewBinding!!
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +57,8 @@ class RateDialogFragment:DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewBinding = RateDialogBinding.inflate(LayoutInflater.from(context),null,false)
+        _viewBinding = RateDialogBinding.inflate(LayoutInflater.from(context),null,false)
+
         return viewBinding.root
     }
 
@@ -63,7 +66,7 @@ class RateDialogFragment:DialogFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
-            val rate =
+            val rate = it.data?.accountState?.rate ?: -1
             viewBinding.ratingBar.rating = if(rate in 0..10)(rate/2.0).toFloat() else 0.0F
         })
         viewModel.ratingResult.observe(viewLifecycleOwner, Observer {
@@ -84,5 +87,10 @@ class RateDialogFragment:DialogFragment() {
         viewBinding.btnOk.setOnClickListener {
             rateMovie()
         }
+    }
+
+    override fun onDestroy() {
+        _viewBinding = null
+        super.onDestroy()
     }
 }

@@ -28,7 +28,8 @@ class MovieFragment : Fragment() {
     private var id: Int? = null
 
     private lateinit var viewModel:DetailViewModel
-    private lateinit var viewBinding:FragmentMovieBinding
+    private var _viewBinding:FragmentMovieBinding? = null
+    private val viewBinding  get() = _viewBinding!!
 
     companion object {
         @JvmStatic
@@ -52,7 +53,7 @@ class MovieFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
-        viewBinding = FragmentMovieBinding.inflate(inflater,container,false)
+        _viewBinding = FragmentMovieBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
 
@@ -89,5 +90,10 @@ class MovieFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        _viewBinding = null
+        super.onDestroyView()
     }
 }

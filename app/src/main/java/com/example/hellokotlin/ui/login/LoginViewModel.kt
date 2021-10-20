@@ -21,8 +21,8 @@ class LoginViewModel @Inject constructor(private var dataRepository: DataReposit
             it.value = Resource.Loading()
             viewModelScope.launch {
                 appUtils.initialize() // TODO:remove it!!
-                dataRepository.loadLastSession().run {
-                    it.value = this
+                dataRepository.loadLastSession().collect() {user->
+                    it.value = user
                 }
             }
         }

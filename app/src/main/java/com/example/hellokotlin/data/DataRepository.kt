@@ -10,7 +10,7 @@ interface DataRepository {
     suspend fun login(username: String, password: String): Flow<Resource<User>>
     suspend fun getMovies(): Flow<Resource<List<Movie>>>
     suspend fun getPopularUsers(): Resource<List<User>>
-    suspend fun loadLastSession(): Resource<User>
+    suspend fun loadLastSession(): Flow<Resource<User>>
     suspend fun logout(): Resource<Boolean>
     suspend fun getMovieById(id:Int): Flow<Resource<Movie>>
     suspend fun rateMovie(movie: Movie, rate:Int): Flow<Resource<Boolean>>

@@ -40,18 +40,20 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
             }
         }
     }
-
-    override suspend fun loadLastSession():Resource<User>{
-        val session = sessionManager.loadSession()
-        var user:User ?= null
-        if(session.isValid()){
-            user = User(name = session.username)
-        }
-        return Resource.Success(user)
-    }
     /********************************************************/
     /********************* LOGIN ****************************/
     /********************************************************/
+    override suspend fun loadLastSession():Flow<Resource<User>>{
+        return flow {
+            val session = sessionManager.loadSession()
+            var user:User ?= null
+            if(session.isValid()){
+                user = User(name = session.username)
+            }
+            emit(Resource.Success(user))
+        }.flowOn(Dispatchers.IO)
+    }
+
     override suspend fun login(username:String, password:String):Flow<Resource<User>> {
         return flow  {
             emit(Resource.Loading())

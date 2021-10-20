@@ -23,7 +23,6 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
     // TODO: pass arguments with saved state - and try to  remove id param
     val movies = MutableLiveData<Resource<List<Movie>>>()
     val currentMovie = MutableLiveData<Resource<Movie>>()
-    val ratingResult = MutableLiveData<Resource<Boolean>>()
 
     fun load(isRecreated: Boolean) {
         if(isRecreated)
@@ -45,11 +44,4 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
         }
     }
 
-    fun rateMovie(movieId: Int, rate: Float) {
-        viewModelScope.launch {
-            val r = (rate*2).toInt()
-            Log.d("MYTAG", "rateMovie: $rate and r = $r ")
-            ratingResult.value = dataRepository.rateMovie(movieId, r)
-        }
-    }
 }

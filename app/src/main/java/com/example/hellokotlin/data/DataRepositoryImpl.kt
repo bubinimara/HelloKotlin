@@ -1,6 +1,5 @@
 package com.example.hellokotlin.data
 
-import android.util.Log
 import com.example.hellokotlin.data.session.Session
 import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.model.Movie
@@ -12,7 +11,6 @@ import com.example.hellokotlin.data.network.model.LoginRequest
 import com.example.hellokotlin.data.network.model.RateRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -114,23 +112,14 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun rateMovie(movieId: Int,rate:Int): Resource<Boolean> {
-        apiService.rateMovie(movieId, sessionManager.loadSession().sessionId, RateRequest(rate))
-        val state = apiService.accountState(movieId,sessionManager.loadSession().sessionId)
-        cacheManger.updateAccountState(state)
-        return Resource.Success(true)
-    }
-     suspend fun rateMovie2(movieId: Int,rate:Int): Flow<Resource<Boolean>> {
-
-        apiService.rateMovie(movieId,sessionManager.loadSession().sessionId, RateRequest(rate))
-        cacheManger.getMovieById(movieId)?.apply {
-            // fetch new rate from the net
-            accountState = apiService.accountState(id,sessionManager.loadSession().sessionId)
-            cacheManger.updateMovieAndAccountState(this)
-        }.let {
-            Resource.Success(it!=null)
-        }
-         return emptyFlow()
+    override suspend fun rateMovie(movie: Movie, rate:Int): Flow<Resource<Boolean>> {
+        return flow {
+            emit(Resource.Loading())
+            apiService.rateMovie(movie.id, sessionManager.loadSession().sessionId, RateRequest(rate))
+            movie.accountState = apiService.accountState(movie.id, sessionManager.loadSession().sessionId)
+            cacheManger.updateMovieAndAccountState(movie)
+            emit(Resource.Success(true))
+        }.flowOn(Dispatchers.IO)
     }
 
     /********************************************************/

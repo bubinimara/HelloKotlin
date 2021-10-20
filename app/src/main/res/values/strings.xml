@@ -12,4 +12,7 @@
     <string name="btn_rate">Rate</string>
     <string name="btn_cancel">Cancel</string>
     <string name="dialog_rate_title">Rate Movie</string>
+    <string name="error_no_movie_selected">No movie selected</string>
+    <string name="error_not_rated">Not Rated!!</string>
+    <string name="error_unknow">Unknown Error</string>
 </resources>

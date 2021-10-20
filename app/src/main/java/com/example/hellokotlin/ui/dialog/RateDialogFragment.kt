@@ -1,16 +1,18 @@
 package com.example.hellokotlin.ui.dialog
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.EventObserver
 import com.example.hellokotlin.databinding.RateDialogBinding
-import com.example.hellokotlin.ui.main.DetailViewModel
+import com.example.hellokotlin.ui.util.makeMeInvisible
+import com.example.hellokotlin.ui.util.makeMeVisible
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -35,17 +37,18 @@ class RateDialogFragment:DialogFragment() {
 
     private var movieId:Int = NO_MOVIE_ID
 
-    private lateinit var viewModel: DetailViewModel
+    private lateinit var viewModel: RateDialogViewModel
     private var _viewBinding: RateDialogBinding? = null
     private val viewBinding get() = _viewBinding!!
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        viewModel = ViewModelProvider(this).get(RateDialogViewModel::class.java)
         arguments?.let {
             movieId = it.getInt(KEY_ID,NO_MOVIE_ID)
+            viewModel.load(movieId)
         }
-        viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
     }
 
     private fun rateMovie() {
@@ -58,35 +61,49 @@ class RateDialogFragment:DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         _viewBinding = RateDialogBinding.inflate(LayoutInflater.from(context),null,false)
-
         return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
-            val rate = it.data?.accountState?.rate ?: -1
-            viewBinding.ratingBar.rating = if(rate in 0..10)(rate/2.0).toFloat() else 0.0F
+        viewModel.rate.observe(viewLifecycleOwner, Observer {
+            viewBinding.ratingBar.rating = it
         })
-        viewModel.ratingResult.observe(viewLifecycleOwner, Observer {
-            dialog?.let {dialog ->
-                when(it){
-                    is Resource.Error ->{
-                        Log.e("RateDialog", "Rating movie error: " )
-                    }
-                    is Resource.Success ->{
-                        dialog.dismiss()
-                    }
-                }
+        viewModel.closeDialog.observe(viewLifecycleOwner, EventObserver<Unit> {
+            dialog?.let {
+                        it.dismiss()
             }
         })
+
+        viewModel.showProgress.observe(viewLifecycleOwner, Observer {
+            showProgress(it);
+        })
+        viewModel.showError.observe(viewLifecycleOwner,EventObserver{
+            showError(it)
+        })
+
+        //viewBinding.root.setupSnackbar(viewLifecycleOwner,viewModel.showError,Snackbar.LENGTH_LONG)
         viewBinding.btnCancel.setOnClickListener {
             dialog?.dismiss()
         }
-        viewBinding.btnOk.setOnClickListener {
+        viewBinding.btnRate.setOnClickListener {
             rateMovie()
         }
+    }
+
+    private fun showProgress(isShowing: Boolean) {
+        if(isShowing){
+            viewBinding.progressBar.makeMeVisible()
+            viewBinding.groupContent.makeMeInvisible()
+        }else{
+            viewBinding.progressBar.makeMeInvisible()
+            viewBinding.groupContent.makeMeVisible()
+        }
+    }
+
+    private fun showError(@StringRes resourceId:Int) {
+        Snackbar.make(viewBinding.root,resourceId,Snackbar.LENGTH_LONG).show()
     }
 
     override fun onDestroy() {

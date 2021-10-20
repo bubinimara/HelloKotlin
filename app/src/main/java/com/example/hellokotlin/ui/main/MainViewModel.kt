@@ -1,9 +1,10 @@
 package com.example.hellokotlin.ui.main
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hellokotlin.Event
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
@@ -42,7 +43,8 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
         }
     }*/
 
-    val actionLogout = MutableLiveData<Resource<Boolean>>()
+    private val _eventLogout = MutableLiveData<Event<Unit>>()
+    val eventLogout: LiveData<Event<Unit>> = _eventLogout
 
 
     fun refresh(){
@@ -58,16 +60,9 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
 
     fun logout() {
         viewModelScope.launch {
+            //TODO:show progress
             repository.logout()
-            actionLogout.value = Resource.Success(true)
-        }
-    }
-
-    fun rateTest() {
-        viewModelScope.launch {
-            val id = movies.value!!.data?.get(1)!!.id
-            repository.rateMovie(id,7)
-            repository.addMovie(Movie(1,"test"))
+            _eventLogout.value = Event(Unit)
         }
     }
 }

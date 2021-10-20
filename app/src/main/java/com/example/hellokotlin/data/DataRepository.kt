@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
     suspend fun configuration():Resource<ConfigurationResponse>
-    suspend fun login(username: String, password: String): Resource<User>
+    suspend fun login(username: String, password: String): Flow<Resource<User>>
     suspend fun getMovies(): Flow<Resource<List<Movie>>>
     suspend fun getPopularUsers(): Resource<List<User>>
     suspend fun loadLastSession(): Resource<User>

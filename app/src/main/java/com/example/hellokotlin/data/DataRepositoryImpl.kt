@@ -52,20 +52,22 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************************************************/
     /********************* LOGIN ****************************/
     /********************************************************/
-    override suspend fun login(username:String, password:String):Resource<User> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun login(username:String, password:String):Flow<Resource<User>> {
+        return flow  {
+            emit(Resource.Loading())
             val requestToken: String = apiService.requestToken().request_token
             val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
             val sessionIdResponse = apiService.createSessionId(tokenResponse)
-            if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
-                Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
+            if(sessionIdResponse.success || sessionIdResponse.sessionId == null) {
+                emit(Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN))
             }else {
                 val s = Session(username, sessionIdResponse.sessionId)
                 sessionManager.storeSession(s)
-                Resource.Success(User(name = username))
+                emit(Resource.Success(User(name = username)))
             }
-        }
-
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn((Dispatchers.IO))
     }
 
     override suspend fun logout(): Resource<Boolean> {

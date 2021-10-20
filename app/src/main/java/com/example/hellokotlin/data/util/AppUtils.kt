@@ -1,9 +1,11 @@
 package com.example.hellokotlin.data.util
 
 import com.example.hellokotlin.data.DataRepository
+import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.data.network.model.ConfigurationResponse
+import kotlinx.coroutines.flow.collect
 import java.io.IOException
 import javax.inject.Inject
 
@@ -41,8 +43,15 @@ class AppUtils @Inject constructor(val respository: DataRepository) {
 
     suspend fun initialize() {
         if(ImageUtils.config == null) {
-            ImageUtils.config = respository.configuration().data
-                ?: throw IOException("Can't retrieve configuration from server side")
+            respository.configuration().collect {
+                when(it){
+                    is Resource.Error -> throw IOException("Error while retrieve configuration from server side")
+                    is Resource.Loading -> {}// do nothing
+                    is Resource.Success -> {   ImageUtils.config = it.data
+                        ?: throw IOException("Can't retrieve configuration from server side")
+                    }
+                }
+            }
         }
 
     }

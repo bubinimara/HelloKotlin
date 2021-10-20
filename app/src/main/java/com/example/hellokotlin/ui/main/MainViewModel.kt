@@ -62,7 +62,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
         viewModelScope.launch {
             //TODO:show progress
             repository.logout().collect {
-                _eventLogout.value = Event(Unit)    
+                _eventLogout.value = Event(Unit)
             }
 
         }

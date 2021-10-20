@@ -31,14 +31,13 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* GLOBAL ***************************/
     /********************************************************/
 
-    override suspend fun configuration(): Resource<ConfigurationResponse> {
-        return withContext(Dispatchers.IO){
-            try {
-                Resource.Success(apiService.configuration())
-            } catch (e: Exception) {
-                Resource.Error()
-            }
-        }
+    override suspend fun configuration(): Flow<Resource<ConfigurationResponse>> {
+        return flow {
+            emit(Resource.Loading())
+            emit(Resource.Success(apiService.configuration()))
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn(Dispatchers.IO)
     }
     /********************************************************/
     /********************* LOGIN ****************************/
@@ -60,7 +59,7 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
             val requestToken: String = apiService.requestToken().request_token
             val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
             val sessionIdResponse = apiService.createSessionId(tokenResponse)
-            if(sessionIdResponse.success || sessionIdResponse.sessionId == null) {
+            if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
                 emit(Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN))
             }else {
                 val s = Session(username, sessionIdResponse.sessionId)

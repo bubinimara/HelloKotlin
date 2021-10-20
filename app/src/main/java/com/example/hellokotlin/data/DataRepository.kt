@@ -14,5 +14,4 @@ interface DataRepository {
     suspend fun logout(): Resource<Boolean>
     suspend fun getMovieById(id:Int): Flow<Resource<Movie>>
     suspend fun rateMovie(movie: Movie, rate:Int): Flow<Resource<Boolean>>
-    suspend fun addMovie(movie: Movie)
 }

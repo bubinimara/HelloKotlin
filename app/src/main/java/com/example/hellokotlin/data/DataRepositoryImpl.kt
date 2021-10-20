@@ -77,10 +77,6 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* MOVIES ***************************/
     /********************************************************/
 
-    override suspend fun addMovie(movie: Movie) {
-        cacheManger.addMovie(movie)
-    }
-
     override suspend fun getMovieById(id:Int): Flow<Resource<Movie>> {
         // if is not in cache than there's some problem
         return cacheManger.getMovieByIdAsFlow(id)

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hellokotlin.EventObserver
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
@@ -58,7 +59,9 @@ class MainFragment : Fragment() {
         viewModel.users.observe(viewLifecycleOwner, {
             renderViewUsers(it)
         })
-
+        viewModel.eventLogout.observe(viewLifecycleOwner,EventObserver{
+            goToLogin()
+        })
         viewBinding.rvUsers.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
         viewBinding.rvUsers.adapter = rvUsersAdapter
 
@@ -88,9 +91,8 @@ class MainFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.action_logout ->{
-                // todo: show dialog
+                //TODO:show Dialog
                 viewModel.logout()
-                goToLogin()
                 return true
             }
             else->{
@@ -110,7 +112,7 @@ class MainFragment : Fragment() {
     private fun renderViewMovies(resource: Resource<List<Movie>>) {
         when(resource){
             is Resource.Success ->{
-                resource.data?.let { rvMoviewAdaper.add(it) }
+                resource.data?.let { rvMoviewAdaper.set(it) }
             }
             is Resource.Error -> showMessage("Error ${resource.error}")
             is Resource.Loading -> showMessage("Loading")

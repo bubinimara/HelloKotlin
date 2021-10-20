@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
 
     fun refresh(){
         viewModelScope.launch {
-            repository.getPopularUsers().also {
+            repository.getPopularUsers().collect {
                 users.value = it
             }
             repository.getMovies().collect {

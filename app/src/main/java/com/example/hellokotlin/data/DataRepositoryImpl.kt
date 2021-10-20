@@ -126,15 +126,14 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /*********************** USERS **************************/
     /********************************************************/
 
-    override suspend fun getPopularUsers():Resource<List<User>>{
-        return withContext(Dispatchers.IO){
-            try {
+    override suspend fun getPopularUsers():Flow<Resource<List<User>>>{
+        return flow{
+            emit(Resource.Loading())
                 val items = apiService.popularUsers().results
-                Resource.Success(items)
-            }catch (e:Exception){
-                Resource.Error()
-            }
-        }
+                emit(Resource.Success(items))
+        }.catch {
+                emit(Resource.Error())
+            }.flowOn((Dispatchers.IO))
     }
 
 

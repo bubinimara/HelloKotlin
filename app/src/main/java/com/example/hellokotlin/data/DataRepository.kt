@@ -13,5 +13,5 @@ interface DataRepository {
     suspend fun getMovies(): Flow<Resource<List<Movie>>>
     suspend fun getMovieById(id:Int): Flow<Resource<Movie>>
     suspend fun rateMovie(movie: Movie, rate:Int): Flow<Resource<Boolean>>
-    suspend fun getPopularUsers(): Resource<List<User>>// todo:to remove
+    suspend fun getPopularUsers(): Flow<Resource<List<User>>>// todo:to remove
 }

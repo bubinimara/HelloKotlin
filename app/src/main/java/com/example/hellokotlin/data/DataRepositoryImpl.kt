@@ -72,9 +72,11 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
         }.flowOn((Dispatchers.IO))
     }
 
-    override suspend fun logout(): Resource<Boolean> {
-        sessionManager.clear()
-        return Resource.Success(true)
+    override suspend fun logout(): Flow<Resource<Boolean>> {
+        return flowOf(Resource.Success(true)).map {
+            sessionManager.clear()
+            it
+        }
     }
 
     /********************************************************/
@@ -88,8 +90,7 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
                 Resource.Success(it)
             }.catch {
                 Resource.Error<Movie>()
-            }
-            .flowOn(Dispatchers.IO)
+            }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun getMovies():Flow<Resource<List<Movie>>>{

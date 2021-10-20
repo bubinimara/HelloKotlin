@@ -31,46 +31,51 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* GLOBAL ***************************/
     /********************************************************/
 
-    override suspend fun configuration(): Resource<ConfigurationResponse> {
-        return withContext(Dispatchers.IO){
-            try {
-                Resource.Success(apiService.configuration())
-            } catch (e: Exception) {
-                Resource.Error()
-            }
-        }
-    }
-
-    override suspend fun loadLastSession():Resource<User>{
-        val session = sessionManager.loadSession()
-        var user:User ?= null
-        if(session.isValid()){
-            user = User(name = session.username)
-        }
-        return Resource.Success(user)
+    override suspend fun configuration(): Flow<Resource<ConfigurationResponse>> {
+        return flow {
+            emit(Resource.Loading())
+            emit(Resource.Success(apiService.configuration()))
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn(Dispatchers.IO)
     }
     /********************************************************/
     /********************* LOGIN ****************************/
     /********************************************************/
-    override suspend fun login(username:String, password:String):Resource<User> {
-        return withContext(Dispatchers.IO) {
+    override suspend fun loadLastSession():Flow<Resource<User>>{
+        return flow {
+            val session = sessionManager.loadSession()
+            var user:User ?= null
+            if(session.isValid()){
+                user = User(name = session.username)
+            }
+            emit(Resource.Success(user))
+        }.flowOn(Dispatchers.IO)
+    }
+
+    override suspend fun login(username:String, password:String):Flow<Resource<User>> {
+        return flow  {
+            emit(Resource.Loading())
             val requestToken: String = apiService.requestToken().request_token
             val tokenResponse = apiService.login(LoginRequest(username,password,requestToken))
             val sessionIdResponse = apiService.createSessionId(tokenResponse)
             if(!sessionIdResponse.success || sessionIdResponse.sessionId == null) {
-                Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN)
+                emit(Resource.Error(Resource.Error.ErrorCode.INVALID_TOKEN))
             }else {
                 val s = Session(username, sessionIdResponse.sessionId)
                 sessionManager.storeSession(s)
-                Resource.Success(User(name = username))
+                emit(Resource.Success(User(name = username)))
             }
-        }
-
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn((Dispatchers.IO))
     }
 
-    override suspend fun logout(): Resource<Boolean> {
-        sessionManager.clear()
-        return Resource.Success(true)
+    override suspend fun logout(): Flow<Resource<Boolean>> {
+        return flowOf(Resource.Success(true)).map {
+            sessionManager.clear()
+            it
+        }
     }
 
     /********************************************************/
@@ -84,8 +89,7 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
                 Resource.Success(it)
             }.catch {
                 Resource.Error<Movie>()
-            }
-            .flowOn(Dispatchers.IO)
+            }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun getMovies():Flow<Resource<List<Movie>>>{
@@ -122,15 +126,14 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /*********************** USERS **************************/
     /********************************************************/
 
-    override suspend fun getPopularUsers():Resource<List<User>>{
-        return withContext(Dispatchers.IO){
-            try {
+    override suspend fun getPopularUsers():Flow<Resource<List<User>>>{
+        return flow{
+            emit(Resource.Loading())
                 val items = apiService.popularUsers().results
-                Resource.Success(items)
-            }catch (e:Exception){
-                Resource.Error()
-            }
-        }
+                emit(Resource.Success(items))
+        }.catch {
+                emit(Resource.Error())
+            }.flowOn((Dispatchers.IO))
     }
 
 

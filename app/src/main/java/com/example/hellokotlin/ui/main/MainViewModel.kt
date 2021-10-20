@@ -49,7 +49,7 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
 
     fun refresh(){
         viewModelScope.launch {
-            repository.getPopularUsers().also {
+            repository.getPopularUsers().collect {
                 users.value = it
             }
             repository.getMovies().collect {
@@ -61,8 +61,10 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
     fun logout() {
         viewModelScope.launch {
             //TODO:show progress
-            repository.logout()
-            _eventLogout.value = Event(Unit)
+            repository.logout().collect {
+                _eventLogout.value = Event(Unit)
+            }
+
         }
     }
 }

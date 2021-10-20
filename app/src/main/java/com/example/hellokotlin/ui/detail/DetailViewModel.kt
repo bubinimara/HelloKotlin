@@ -1,4 +1,4 @@
-package com.example.hellokotlin.ui.main
+package com.example.hellokotlin.ui.detail
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData

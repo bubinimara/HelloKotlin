@@ -1,4 +1,4 @@
-package com.example.hellokotlin.ui.main
+package com.example.hellokotlin.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle

@@ -1,4 +1,4 @@
-package com.example.hellokotlin.ui.main
+package com.example.hellokotlin.ui.detail
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,11 +8,11 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.example.hellokotlin.R
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.util.AppUtils
 import com.example.hellokotlin.databinding.FragmentMovieBinding
+import com.example.hellokotlin.ui.detail.DetailViewModel
 import com.example.hellokotlin.ui.dialog.RateDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,7 +27,7 @@ private const val ARG_ID = "arg_id"
 class MovieFragment : Fragment() {
     private var id: Int? = null
 
-    private lateinit var viewModel:DetailViewModel
+    private lateinit var viewModel: DetailViewModel
     private var _viewBinding:FragmentMovieBinding? = null
     private val viewBinding  get() = _viewBinding!!
 

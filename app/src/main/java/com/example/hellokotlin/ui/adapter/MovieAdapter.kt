@@ -1,5 +1,6 @@
 package com.example.hellokotlin.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,6 +63,11 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerVi
 
     override fun getItemCount(): Int {
         return items.size
+    }
+
+    fun set(movies: Collection<Movie>){
+        clear()
+        add(movies)
     }
 
     fun add(movies:Collection<Movie>){

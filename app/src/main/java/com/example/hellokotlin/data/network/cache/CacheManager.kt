@@ -5,6 +5,9 @@ import android.content.SharedPreferences
 import com.example.hellokotlin.data.db.AppDb
 import com.example.hellokotlin.data.db.MovieDao
 import com.example.hellokotlin.data.model.Movie
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
 
@@ -35,38 +38,39 @@ class CacheManager private constructor(context: Context,appDb: AppDb) {
             }
         }
     }
-    suspend fun getMovies(force: Boolean = false): List<Movie>? {
-        if(force || cacheValidator.isValidMovieCache() ){
-            return movieDao.getMoviesAndAccountState()
-        }
-        return null
+
+     suspend fun getMoviesAsFlow(force: Boolean = false): Flow<List<Movie>?> {
+        return movieDao.getMoviesAndAccountStateAsFlow()
     }
 
     suspend fun updateMovies(movies:List<Movie>){
         // clear all
-        movieDao.deleteAllMovies()
-        movieDao.deleteAllAccountState()
-        // update
+        movieDao.updateAllMovies(movies)
         cacheValidator.updateMovieCache()
-        movieDao.insertAllMovies(movies)
-        movies.forEach {
-            movie -> movie.accountState?.let { movieDao.insertAccountState(it) }
-        }
     }
 
-    suspend fun getAccountState(id:Int,force:Boolean = false): Movie.AccountState? {
-        return movieDao.getAccountState(id)
+    suspend fun getMovieByIdAsFlow(id: Int): Flow<Movie?> {
+        return movieDao.getMovieAndAccountStateByIdAsFlow(id)
     }
-
-    suspend fun updateAccountState(accountState: Movie.AccountState?) {
-        accountState?.let { movieDao.insertAccountState(it) }
-    }
-
-    // TODO: add in memory cache and get from there
-    suspend fun getMovieById(id: Int):Movie? {
+    suspend fun getMovieById(id: Int): Movie? {
         return movieDao.getMoviesById(id)?.apply {
             accountState = movieDao.getAccountState(id)
         }
+    }
+
+    suspend fun updateMovieAndAccountState(movie: Movie) {
+        movieDao.updateMovieAndAccountState(movie)
+    }
+    suspend fun getAccountState(movie: Movie): Movie.AccountState? {
+        return movieDao.getAccountState(movie.id)
+    }
+
+    suspend fun addMovie(movie: Movie) {
+        movieDao.insertMovie(movie)
+    }
+
+    suspend fun updateAccountState(accountState: Movie.AccountState) {
+        movieDao.insertAccountState(accountState)
     }
 
     class CacheValidator(context: Context){

@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.savedstate.SavedStateRegistry
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,22 +29,19 @@ class DetailViewModel @Inject constructor(val dataRepository: DataRepository): V
             return
 
          viewModelScope.launch{
-            movies.value = dataRepository.getMovies()
+             dataRepository.getMovies().collect {
+                 movies.value = it
+            }
         }
 
     }
 
     fun getMovieById(id:Int){
         viewModelScope.launch {
-            currentMovie.value = dataRepository.getMovieById(id)
+            dataRepository.getMovieById(id).collect {
+                currentMovie.value = it
+            }
         }
     }
 
-    fun rateMovie(movieId: Int,rate:Int) {
-        viewModelScope.launch {
-            Log.d("MYTAG", "rateMovie: $rate")
-            currentMovie.value = Resource.Loading()
-            currentMovie.value = dataRepository.rateMovie(movieId,rate)
-        }
-    }
 }

@@ -32,13 +32,11 @@ class MainFragment : Fragment() {
     private var _viewBinding: MainFragmentBinding? = null
     private val viewBinding get() = _viewBinding!!
 
-    private var rvMoviewAdaper = MovieAdapter(object : AdapterClickListener<Movie> {
-        override fun onItemClicked(item: Movie) {
-            val action =
-                MainFragmentDirections.movieDetailAction(item.id)
-            findNavController().navigate(action)
-        }
-    })
+    private var rvMoviewAdaper = MovieAdapter { item ->
+        val action =
+            MainFragmentDirections.movieDetailAction(item.id)
+        findNavController().navigate(action)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -99,7 +97,7 @@ class MainFragment : Fragment() {
         startActivity(intent)
         activity?.finish()
     }
-    fun showProgress(isShowing:Boolean){
+    private fun showProgress(isShowing:Boolean){
         if(isShowing){
             viewBinding.progressBar.makeMeVisible()
             viewBinding.rvMovies.makeMeInvisible()

@@ -5,20 +5,20 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.hellokotlin.EventObserver
 import com.example.hellokotlin.R
-import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
-import com.example.hellokotlin.data.model.User
 import com.example.hellokotlin.databinding.MainFragmentBinding
 import com.example.hellokotlin.ui.adapter.AdapterClickListener
 import com.example.hellokotlin.ui.adapter.MovieAdapter
-import com.example.hellokotlin.ui.adapter.UsersAdapter
 import com.example.hellokotlin.ui.login.LoginActivity
+import com.example.hellokotlin.ui.util.makeMeInvisible
+import com.example.hellokotlin.ui.util.makeMeVisible
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,9 +29,8 @@ class MainFragment : Fragment() {
     }
 
     private lateinit var viewModel: MainViewModel
-    private lateinit var viewBinding: MainFragmentBinding
-
-    private var rvUsersAdapter = UsersAdapter()
+    private var _viewBinding: MainFragmentBinding? = null
+    private val viewBinding get() = _viewBinding!!
 
     private var rvMoviewAdaper = MovieAdapter(object : AdapterClickListener<Movie> {
         override fun onItemClicked(item: Movie) {
@@ -46,41 +45,34 @@ class MainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         setHasOptionsMenu(true)
-        viewBinding = MainFragmentBinding.inflate(inflater,container,false)
+        _viewBinding = MainFragmentBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        viewBinding.rvMovies.layoutManager = GridLayoutManager(context,3)
+        viewBinding.rvMovies.adapter = rvMoviewAdaper
+
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.movies.observe(viewLifecycleOwner, {
-            renderViewMovies(it)
+            rvMoviewAdaper.set(it)
         })
-        viewModel.users.observe(viewLifecycleOwner, {
-            renderViewUsers(it)
+
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer { showProgress(it) })
+        viewModel.eventError.observe(viewLifecycleOwner,EventObserver{
+            Snackbar.make(viewBinding.root,it,Snackbar.LENGTH_LONG).show()
         })
         viewModel.eventLogout.observe(viewLifecycleOwner,EventObserver{
             goToLogin()
         })
-        viewBinding.rvUsers.layoutManager = LinearLayoutManager(context,LinearLayoutManager.HORIZONTAL,false)
-        viewBinding.rvUsers.adapter = rvUsersAdapter
 
-        viewBinding.rvMovies.layoutManager = GridLayoutManager(context,3)
-        viewBinding.rvMovies.adapter = rvMoviewAdaper
-
-        viewModel.refresh()
-
+        viewModel.load()
     }
 
-    private fun renderViewUsers(resource: Resource<List<User>>) {
-        when(resource){
-            is Resource.Success ->{
-                resource.data?.let {
-                    rvUsersAdapter.add(it) }
-            }
-            is Resource.Error ->{}
-            is Resource.Loading -> {}
-        }
+    override fun onDestroy() {
+        _viewBinding = null
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -89,17 +81,16 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
+        return when(item.itemId){
             R.id.action_logout ->{
                 //TODO:show Dialog
                 viewModel.logout()
-                return true
+                true
             }
             else->{
-                return super.onOptionsItemSelected(item)
+                super.onOptionsItemSelected(item)
             }
         }
-
     }
 
     private fun goToLogin() {
@@ -108,19 +99,14 @@ class MainFragment : Fragment() {
         startActivity(intent)
         activity?.finish()
     }
-
-    private fun renderViewMovies(resource: Resource<List<Movie>>) {
-        when(resource){
-            is Resource.Success ->{
-                resource.data?.let { rvMoviewAdaper.set(it) }
-            }
-            is Resource.Error -> showMessage("Error ${resource.error}")
-            is Resource.Loading -> showMessage("Loading")
+    fun showProgress(isShowing:Boolean){
+        if(isShowing){
+            viewBinding.progressBar.makeMeVisible()
+            viewBinding.rvMovies.makeMeInvisible()
+        }else{
+            viewBinding.progressBar.makeMeInvisible()
+            viewBinding.rvMovies.makeMeVisible()
         }
-    }
-
-    private fun showMessage(message: String) {
-        Toast.makeText(context,message,Toast.LENGTH_LONG).show()
     }
 }
 

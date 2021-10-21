@@ -3,7 +3,7 @@ package com.example.hellokotlin.ui.adapter
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.hellokotlin.data.model.Movie
-import com.example.hellokotlin.ui.main.MovieFragment
+import com.example.hellokotlin.ui.detail.MovieFragment
 
 
 /**

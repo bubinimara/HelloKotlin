@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.hellokotlin.Event
+import com.example.hellokotlin.R
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
@@ -21,20 +22,10 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val repository: DataRepository) : ViewModel() {
 
     /**
-     * User list
-     */
-    val users: MutableLiveData<Resource<List<User>>> by lazy {
-        MutableLiveData<Resource<List<User>>>().also {
-            viewModelScope.launch {
-                repository.getPopularUsers()
-            }
-        }
-    }
-
-    /**
      * Movies List
      */
-    val movies = MutableLiveData<Resource<List<Movie>>>()
+    private val _movies = MutableLiveData<List<Movie>>()
+    val movies:LiveData<List<Movie>> = _movies
   /*  val movies: MutableLiveData<Resource<List<Movie>>> by lazy {
         MutableLiveData<Resource<List<Movie>>>().also {
             viewModelScope.launch {
@@ -43,28 +34,34 @@ class MainViewModel @Inject constructor(private val repository: DataRepository) 
         }
     }*/
 
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading:LiveData<Boolean> = _isLoading
+
     private val _eventLogout = MutableLiveData<Event<Unit>>()
     val eventLogout: LiveData<Event<Unit>> = _eventLogout
 
+    private val _eventError = MutableLiveData<Event<Int>>()
+    val eventError: MutableLiveData<Event<Int>> = _eventError
 
-    fun refresh(){
+    fun load(){
         viewModelScope.launch {
-            repository.getPopularUsers().collect {
-                users.value = it
-            }
-            repository.getMovies().collect {
-                movies.value = it
+            repository.getMovies().collect {resource->
+                _isLoading.value = resource is Resource.Loading
+                when(resource){
+                    is Resource.Error -> _eventError.value = Event(R.string.error_unknow)
+                    is Resource.Loading -> _movies.value = resource.data ?: emptyList()
+                    is Resource.Success -> _movies.value = resource.data ?: emptyList()
+                }
             }
         }
     }
 
     fun logout() {
         viewModelScope.launch {
-            //TODO:show progress
+            //TODO:show DIALOG
             repository.logout().collect {
                 _eventLogout.value = Event(Unit)
             }
-
         }
     }
 }

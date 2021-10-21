@@ -15,4 +15,5 @@
     <string name="error_no_movie_selected">No movie selected</string>
     <string name="error_not_rated">Not Rated!!</string>
     <string name="error_unknow">Unknown Error</string>
+    <string name="title_popular_movies">Popular Movies</string>
 </resources>

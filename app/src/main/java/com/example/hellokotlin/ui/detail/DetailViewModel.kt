@@ -1,9 +1,11 @@
 package com.example.hellokotlin.ui.detail
 
-import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.hellokotlin.Event
+import com.example.hellokotlin.R
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
@@ -20,28 +22,56 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(val dataRepository: DataRepository): ViewModel() {
 
-    // TODO: pass arguments with saved state - and try to  remove id param
-    val movies = MutableLiveData<Resource<List<Movie>>>()
-    val currentMovie = MutableLiveData<Resource<Movie>>()
+    private val _movies = MutableLiveData<List<Movie>>()
+    val movies:LiveData<List<Movie>> = _movies
 
-    fun load(isRecreated: Boolean) {
-        if(isRecreated)
-            return
+    // when data is loading ... view should show progress
+    private val _isLoadin = MutableLiveData<Boolean>()
+    val isLoadin:LiveData<Boolean> = _isLoadin
 
+    private val _eventError = MutableLiveData<Event<Int>>()
+    val eventError:LiveData<Event<Int>> =_eventError
+
+    private val _eventSelectedMoviePosition = MutableLiveData<Event<Int>>()
+    val eventSelectedMoviePosition:LiveData<Event<Int>> = _eventSelectedMoviePosition
+
+    private var shouldLoad = true
+
+
+    fun load(id:Int?) {
          viewModelScope.launch{
              dataRepository.getMovies().collect {
-                 movies.value = it
+                 _isLoadin.value = it is Resource.Loading // never load because it came from db!
+                 when(it){
+                     is Resource.Error -> _eventError.value = Event(R.string.error_unknow)
+                     is Resource.Loading -> {}
+                     is Resource.Success -> {
+                         it.data?.let { movies ->
+                             onDataLoaded(movies, id)
+                         }
+                     }
+                 }
             }
         }
-
     }
 
-    fun getMovieById(id:Int){
-        viewModelScope.launch {
-            dataRepository.getMovieById(id).collect {
-                currentMovie.value = it
+    private fun onDataLoaded(data: List<Movie>, id: Int?) {
+        if(shouldLoad) {
+            _movies.value = data // todo: check why it work??
+            shouldLoad = false
+            findItemPosition(data, id)?.let {
+                _eventSelectedMoviePosition.value = it
             }
         }
     }
 
+    private fun findItemPosition(movies: List<Movie>, movieId: Int?): Event<Int>? {
+        movieId?.let {
+            for (i in 0..movies.size ){
+                if(movies[i].id == movieId)
+                    return Event(i)
+            }
+        }
+        return null
+    }
 }

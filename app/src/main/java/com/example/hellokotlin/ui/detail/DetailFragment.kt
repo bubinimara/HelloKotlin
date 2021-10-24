@@ -7,10 +7,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.example.hellokotlin.EventObserver
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.databinding.FragmentDetailBinding
 import com.example.hellokotlin.ui.adapter.DetailStateAdapter
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,34 +35,22 @@ class DetailFragment : Fragment() {
         val args = arguments?.let { DetailFragmentArgs.fromBundle(it) }
         args?.movieId?.let {
             movieId = it
+            arguments = null // next time don't get the current
         }
 
         viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
         viewModel.movies.observe(viewLifecycleOwner, Observer {
-            renderView(it)
+            viewBinding.pager.adapter = DetailStateAdapter(this, it)
         })
-        viewModel.load(savedInstanceState != null)
-    }
+        viewModel.eventSelectedMoviePosition.observe(viewLifecycleOwner,EventObserver {
+            viewBinding.pager.setCurrentItem( it,false)
+        })
 
-    private fun renderView(it: Resource<List<Movie>>) {
-        when (it) {
-            is Resource.Error -> TODO()
-            is Resource.Loading -> TODO()
-            is Resource.Success -> {
-                it.data?.let { movies ->
-                    viewBinding.pager.adapter = DetailStateAdapter(this, movies)
-                    viewBinding.pager.setCurrentItem(  findPositionById(movies,movieId),false)
-                }
-            }
-        }
-    }
+        viewModel.eventError.observe(viewLifecycleOwner, EventObserver { resString->
+            Snackbar.make(viewBinding.root,resString,Snackbar.LENGTH_LONG).show()
+        })
 
-    private fun findPositionById(movies:List<Movie>,movieId: Int): Int {
-        for (i in 0..movies.size ){
-            if(movies[i].id == movieId)
-                return i
-        }
-        return 0
+        viewModel.load(movieId)
     }
 
 }

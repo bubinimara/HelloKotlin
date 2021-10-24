@@ -8,11 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
-import com.example.hellokotlin.data.Resource
+import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.util.AppUtils
 import com.example.hellokotlin.databinding.FragmentMovieBinding
-import com.example.hellokotlin.ui.detail.DetailViewModel
 import com.example.hellokotlin.ui.dialog.RateDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -25,9 +24,9 @@ private const val ARG_ID = "arg_id"
  */
 @AndroidEntryPoint
 class MovieFragment : Fragment() {
-    private var id: Int? = null
+    private var movieId: Int? = null
 
-    private lateinit var viewModel: DetailViewModel
+    private lateinit var viewModel: MovieViewModel
     private var _viewBinding:FragmentMovieBinding? = null
     private val viewBinding  get() = _viewBinding!!
 
@@ -44,7 +43,7 @@ class MovieFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            id = it.getInt(ARG_ID)
+            movieId = it.getInt(ARG_ID)
         }
     }
 
@@ -52,44 +51,39 @@ class MovieFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel = ViewModelProvider(this).get(DetailViewModel::class.java)
+        viewModel = ViewModelProvider(this).get(MovieViewModel::class.java)
         _viewBinding = FragmentMovieBinding.inflate(inflater,container,false)
         return viewBinding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.currentMovie.observe(viewLifecycleOwner, Observer {
+        viewModel.movie.observe(viewLifecycleOwner, Observer {
             renderData(it)
 
         })
         viewBinding.fab.setOnClickListener {
-        kotlin.runCatching {
-            id?.let { it1 -> RateDialogFragment.getInstance(it1).show(parentFragmentManager, "RateDialog") }
-        }
+            movieId?.let { it1 -> RateDialogFragment.getInstance(it1).show(parentFragmentManager, "RateDialog") }
         }
         // load
-        id?.let { viewModel.getMovieById(it) }
+        movieId?.let { viewModel.load(it) }
     }
 
-    private fun renderData(it: Resource<Movie>) {
-        when (it) {
-            is Resource.Error -> TODO()
-            is Resource.Loading -> TODO()
-            is Resource.Success -> {
-                it.data?.let { movie ->
-                    viewBinding.title.text = movie.title
-                    movie.accountState?.let { accountState ->
-                        viewBinding.rate.text = accountState.rate.toString()
-                    }
-                    viewBinding.description.text = movie.overview
-                    Glide.with(viewBinding.image)
-                        .load(AppUtils.ImageUtils.getImageUrlForMovie(movie))
-                        .into(viewBinding.image)
-
-                }
+    private fun renderData(movie: Movie) {
+        viewBinding.title.text = movie.title
+        movie.accountState?.let { accountState ->
+             if(accountState.rate>0){
+                 viewBinding.rate.text= accountState.rate.toString()
+            }else{
+                 viewBinding.rate.text =   getString(R.string.not_rated)
             }
         }
+        viewBinding.description.text = movie.overview
+        Glide.with(viewBinding.image)
+            .load(AppUtils.ImageUtils.getImageUrlForMovie(movie))
+            .into(viewBinding.image)
+
+
     }
 
     override fun onDestroyView() {

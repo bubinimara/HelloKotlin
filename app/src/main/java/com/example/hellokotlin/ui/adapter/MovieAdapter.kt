@@ -6,19 +6,23 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.util.AppUtils.ImageUtils
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 /**
  *
  * Created by Davide Parise on 07/09/21.
  */
-class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerView.Adapter<MovieAdapter.Holder>() {
-    public class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):ListAdapter<Movie,MovieAdapter.Holder>(MovieDiff()) {
+    class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title:TextView
         val rate:TextView
         val image:ImageView
@@ -49,7 +53,15 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerVi
         }
     }
 
-     val items:MutableList<Movie> = ArrayList()
+    class MovieDiff:DiffUtil.ItemCallback<Movie>(){
+        override fun areItemsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Movie, newItem: Movie): Boolean {
+            return oldItem == newItem
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val view = LayoutInflater.from(parent.context)
@@ -58,29 +70,10 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):RecyclerVi
     }
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
-        holder.set(items[position],listener)
-    }
-
-    override fun getItemCount(): Int {
-        return items.size
+        holder.set(getItem(position),listener)
     }
 
     fun set(movies: Collection<Movie>){
-        clear()
-        add(movies)
-    }
-
-    fun add(movies:Collection<Movie>){
-        val  size = items.size
-        items.addAll(movies)
-        notifyItemRangeInserted(size,movies.size)
-    }
-
-    fun clear(){
-        val  size = items.size
-        if(size>0){
-            items.clear()
-            notifyItemRangeRemoved(0,size)
-        }
+        submitList(movies.toMutableList())
     }
 }

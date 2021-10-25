@@ -1,2 +1,2 @@
- *** Todo
-  - [ ] Change gson adapter to moshi
+ ## Todo
+  - [ ] Better readme :)

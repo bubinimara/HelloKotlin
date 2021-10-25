@@ -14,7 +14,8 @@
     <string name="btn_cancel">Cancel</string>
     <string name="dialog_rate_title">Rate Movie</string>
     <string name="error_no_movie_selected">No movie selected</string>
-    <string name="error_not_rated">Not Rated!!</string>
+    <string name="error_not_rated">Not Rated</string>
+    <string name="error_not_rated_for_stars">Choose how many stars first</string>
     <string name="error_unknow">Unknown Error</string>
     <string name="title_popular_movies">Popular Movies</string>
     <string name="empty_text" />

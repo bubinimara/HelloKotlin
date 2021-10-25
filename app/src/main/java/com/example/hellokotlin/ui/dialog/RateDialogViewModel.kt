@@ -78,10 +78,8 @@ class RateDialogViewModel @Inject constructor(private val repository: DataReposi
         val convertedRate = RateUtil.convertRateForWeb(rate)
         Log.d(TAG, "rateMovie: rate $rate converted $convertedRate")
         if(convertedRate <= 0F){ // check converted rate
-/*
-            _showError.value = Event(R.string.error_not_rated)
+            _showError.value = Event(R.string.error_not_rated_for_stars)
             return
-*/
         }
         _showError.value = Event(R.string.empty_text)
         viewModelScope.launch {

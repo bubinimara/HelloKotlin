@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RatingBar
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
@@ -83,7 +84,6 @@ class RateDialogFragment:DialogFragment() {
             showError(it)
         })
 
-        //viewBinding.root.setupSnackbar(viewLifecycleOwner,viewModel.showError,Snackbar.LENGTH_LONG)
         viewBinding.btnCancel.setOnClickListener {
             dialog?.dismiss()
         }

@@ -5,7 +5,8 @@
     <string name="username">username</string>
     <string name="movies">Movies</string>
     <string name="logout">logout</string>
-    <string name="not_rated">not rated</string>
+    <string name="not_rated">not rated yet</string>
+    <string name="your_rate">Rate: %1$s/10</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="no_overview">No Overview</string>
@@ -16,4 +17,5 @@
     <string name="error_not_rated">Not Rated!!</string>
     <string name="error_unknow">Unknown Error</string>
     <string name="title_popular_movies">Popular Movies</string>
+    <string name="empty_text" />
 </resources>

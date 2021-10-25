@@ -1,5 +1,6 @@
 package com.example.hellokotlin.data
 
+import android.util.Log
 import com.example.hellokotlin.data.session.Session
 import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.model.Movie
@@ -94,31 +95,45 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
 
     override suspend fun getMovies():Flow<Resource<List<Movie>>>{
         return flow {
-            if(!cacheManger.cacheValidator.isValidMovieCache()) {
-                emit(Resource.Loading(cacheManger.getMoviesAsFlow().firstOrNull()))
-                val response = apiService.popularMovies()
-                val list = response.results?.toMutableList()
-                list.forEach {
-                    it.accountState =
-                        apiService.accountState(it.id, sessionManager.loadSession().sessionId)
-                }
-                cacheManger.updateMovies(list)
-            }
             val dbElements = cacheManger.getMoviesAsFlow()
                 .map {
+                    if(it.isNullOrEmpty() || !cacheManger.cacheValidator.isValidMovieCache()) {
+                        emit(Resource.Loading(cacheManger.getMoviesAsFlow().firstOrNull()))
+                        val response = apiService.popularMovies()
+                        val list = response.results?.toMutableList()
+                        list.forEach {
+                            it.accountState =
+                                apiService.accountState(it.id, sessionManager.loadSession().sessionId)
+                        }
+                        cacheManger.updateMovies(list)
+                    }
                     Resource.Success(it)
                 }
             emitAll(dbElements)
-        }.flowOn(Dispatchers.IO)
+        }
+            .catch {
+                emit(Resource.Error())
+            }.flowOn(Dispatchers.IO)
     }
 
-    override suspend fun rateMovie(movie: Movie, rate:Int): Flow<Resource<Boolean>> {
+    override suspend fun rateMovie(movie: Movie, rate:Float): Flow<Resource<Boolean>> {
         return flow {
+            Log.d(TAG, "rateMovie: rating ${movie.id} with rate $rate")
             emit(Resource.Loading())
-            apiService.rateMovie(movie.id, sessionManager.loadSession().sessionId, RateRequest(rate))
-            movie.accountState = apiService.accountState(movie.id, sessionManager.loadSession().sessionId)
-            cacheManger.updateMovieAndAccountState(movie)
-            emit(Resource.Success(true))
+            val response = apiService.rateMovie(movie.id, sessionManager.loadSession().sessionId, RateRequest(rate))
+            Log.d(TAG, "rateMovie: success = ${response.success}")
+            if(response.success) {
+                movie.accountState = Movie.AccountState(movie.id,rate)
+                // there is delay to update server side .. sometime show old value.
+//                    apiService.accountState(movie.id, sessionManager.loadSession().sessionId)
+                cacheManger.updateMovieAndAccountState(movie)
+                emit(Resource.Success(true))
+            }else{
+                emit(Resource.Error(response.status_code))
+            }
+        }.catch { e->
+            Log.d(TAG, "rateMovie: error")
+            emit(Resource.Error())
         }.flowOn(Dispatchers.IO)
     }
 

@@ -13,6 +13,7 @@ import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.util.AppUtils
 import com.example.hellokotlin.databinding.FragmentMovieBinding
 import com.example.hellokotlin.ui.dialog.RateDialogFragment
+import com.example.hellokotlin.ui.util.RateUtil
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val ARG_ID = "arg_id"
@@ -72,8 +73,9 @@ class MovieFragment : Fragment() {
     private fun renderData(movie: Movie) {
         viewBinding.title.text = movie.title
         movie.accountState?.let { accountState ->
-             if(accountState.rate>0){
-                 viewBinding.rate.text= accountState.rate.toString()
+            val toText = RateUtil.toText(accountState.rate)
+            if(toText != null){
+                 viewBinding.rate.text= getString(R.string.your_rate,toText)
             }else{
                  viewBinding.rate.text =   getString(R.string.not_rated)
             }

@@ -27,7 +27,7 @@ data class Movie(
     @Entity(tableName = "account_state")
     data class AccountState constructor(
         @PrimaryKey val id: Int=-1,
-        @ColumnInfo(name = "rate") val rate:Int=-1){ // add timestamp
+        @ColumnInfo(name = "rate") val rate:Float=-1F){ // add timestamp
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -42,7 +42,7 @@ data class Movie(
 
         override fun hashCode(): Int {
             var result = id
-            result = 31 * result + rate
+            result = (31 * result + rate).toInt()
             return result
         }
     }

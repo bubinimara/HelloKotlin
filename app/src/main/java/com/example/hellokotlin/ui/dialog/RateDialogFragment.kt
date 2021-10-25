@@ -52,7 +52,7 @@ class RateDialogFragment:DialogFragment() {
     }
 
     private fun rateMovie() {
-        viewModel.rateMovie(movieId,viewBinding.ratingBar.rating)
+        viewModel.rateMovie(viewBinding.ratingBar.rating)
     }
 
     override fun onCreateView(
@@ -103,7 +103,7 @@ class RateDialogFragment:DialogFragment() {
     }
 
     private fun showError(@StringRes resourceId:Int) {
-        Snackbar.make(viewBinding.root,resourceId,Snackbar.LENGTH_LONG).show()
+            viewBinding.textError.setText(resourceId)
     }
 
     override fun onDestroy() {

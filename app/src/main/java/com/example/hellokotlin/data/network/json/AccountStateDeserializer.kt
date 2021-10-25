@@ -28,12 +28,12 @@ class AccountStateDeserializer(): JsonDeserializer<Movie.AccountState> {
         context: JsonDeserializationContext?
     ): Movie.AccountState {
         if(json == null) return Movie.AccountState()
-        var rated=-1
+        var rated=0F
         var id = -1
 
         try {
             id = json.asJsonObject.get(KEY_ID)!!.asInt
-            rated = json.asJsonObject.get(KEY_RATED).asJsonObject.get(KEY_VALUE).asInt
+            rated = json.asJsonObject.get(KEY_RATED).asJsonObject.get(KEY_VALUE).asFloat
         } catch (e: Exception) {
             Log.e(TAG, "deserialize: ",e )
         }

@@ -10,6 +10,7 @@ import com.example.hellokotlin.R
 import com.example.hellokotlin.data.DataRepository
 import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
+import com.example.hellokotlin.ui.util.RateUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -23,6 +24,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class RateDialogViewModel @Inject constructor(private val repository: DataRepository): ViewModel() {
+    companion object{
+        private const val TAG = "RateDialogViewModel"
+    }
     // if show progress or not
     private val _showProgress: MutableLiveData<Boolean> = MutableLiveData()
     val showProgress:LiveData<Boolean> = _showProgress
@@ -42,33 +46,47 @@ class RateDialogViewModel @Inject constructor(private val repository: DataReposi
     fun load(id:Int){
         viewModelScope.launch {
             repository.getMovieById(id).collect {
+                _showProgress.value = it is Resource.Loading
                 when(it){
-                    is Resource.Error -> _showProgress.value = false
-                    is Resource.Loading -> _showProgress.value = true // never called
+                    is Resource.Error -> _showError.value = Event(R.string.error_unknow)
+                    is Resource.Loading -> {} // never called
                     is Resource.Success ->{
                         movie = it.data
-                        val rated:Int = it.data?.accountState?.rate ?: -1
-                        _rate.value = if(rated in 0..10)(rated/2.0).toFloat() else 0.0F
-                        _showProgress.value = false
+                        val rated:Float? = it.data?.accountState?.rate
+                        val converted = RateUtil.convertRateForApp(rated)
+                        _rate.value = converted
+                        Log.d(TAG, "load: rated $rated converted $converted ")
+                        _showError.value = Event(R.string.empty_text)
                     }
                 }
             }
         }
     }
 
-    fun rateMovie(id: Int, rate: Float){
-        if(id<0) {
+    private val _enableRateButton = MutableLiveData<Boolean>()
+
+    fun onRateChanged(rate: Float){
+        _enableRateButton.value = rate > 0
+    }
+
+    fun rateMovie(rate: Float){
+        if(movie == null) {
             _showError.value = Event(R.string.error_no_movie_selected)
             return
         }
-        if(rate <= 0){
+
+        val convertedRate = RateUtil.convertRateForWeb(rate)
+        Log.d(TAG, "rateMovie: rate $rate converted $convertedRate")
+        if(convertedRate <= 0F){ // check converted rate
+/*
             _showError.value = Event(R.string.error_not_rated)
             return
+*/
         }
+        _showError.value = Event(R.string.empty_text)
         viewModelScope.launch {
-            val r = (rate*2).toInt() //todo:add better conversion
-            Log.d("MYTAG", "rateMovie: $rate and r = $r ")
-            repository.rateMovie(movie!!, r).collect {
+            repository.rateMovie(movie!!, convertedRate).collect {
+                _showProgress.value = it is Resource.Loading
                 when(it){
                     is Resource.Error -> _showError.value = Event(R.string.error_unknow)//todo: add error mapper
                     is Resource.Loading -> _showProgress.value = true

@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.data.util.AppUtils.ImageUtils
+import com.example.hellokotlin.ui.util.RateUtil
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -39,9 +40,11 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):ListAdapte
             }
 
             title.text = movie.title
-            movie.accountState?.rate.let {
-                if(it != null && it>0)
-                rate.text = it.toString()
+            rate.setText(R.string.not_rated)// default
+            movie.accountState?.rate.let {rated->
+                RateUtil.toText(rated)?.let {
+                    rate.text = rate.context.getString(R.string.your_rate,it)
+                }
             }
 
 

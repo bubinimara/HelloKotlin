@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        app:constraint_referenced_ids="btn_cancel,btn_rate,ratingBar"/>
+        app:constraint_referenced_ids="btn_cancel,btn_rate,ratingBar,textError"/>
 
     <RatingBar
         android:id="@+id/ratingBar"
@@ -42,7 +42,7 @@
         android:text="@string/btn_rate"
         style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
+        app:layout_constraintTop_toBottomOf="@+id/textError" />
 
     <Button
         android:id="@+id/btn_cancel"
@@ -52,7 +52,7 @@
         android:text="@string/btn_cancel"
         style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
         app:layout_constraintEnd_toStartOf="@+id/btn_rate"
-        app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
+        app:layout_constraintTop_toBottomOf="@+id/textError" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -64,5 +64,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView" />
+
+    <TextView
+        android:id="@+id/textError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        style="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/color_red"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ratingBar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

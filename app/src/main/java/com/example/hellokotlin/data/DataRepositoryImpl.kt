@@ -44,14 +44,16 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* LOGIN ****************************/
     /********************************************************/
     override suspend fun loadLastSession():Flow<Resource<User>>{
-        return flow {
+        return flow <Resource<User>>{
             val session = sessionManager.loadSession()
             var user:User ?= null
             if(session.isValid()){
                 user = User(name = session.username)
             }
             emit(Resource.Success(user))
-        }.flowOn(Dispatchers.IO)
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn((Dispatchers.IO))
     }
 
     override suspend fun login(username:String, password:String):Flow<Resource<User>> {
@@ -73,10 +75,12 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     }
 
     override suspend fun logout(): Flow<Resource<Boolean>> {
-        return flowOf(Resource.Success(true)).map {
+        return flowOf<Resource<Boolean>>(Resource.Success(true)).map {
             sessionManager.clear()
             it
-        }
+        }.catch {
+            emit(Resource.Error())
+        }.flowOn((Dispatchers.IO))
     }
 
     /********************************************************/
@@ -150,7 +154,4 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
                 emit(Resource.Error())
             }.flowOn((Dispatchers.IO))
     }
-
-
-
 }

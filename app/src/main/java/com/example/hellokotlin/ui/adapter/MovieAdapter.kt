@@ -76,7 +76,7 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):ListAdapte
         holder.set(getItem(position),listener)
     }
 
-    fun set(movies: Collection<Movie>){
-        submitList(movies.toMutableList())
+    fun set(movies: Collection<Movie>?){
+        submitList(movies?.toMutableList())
     }
 }

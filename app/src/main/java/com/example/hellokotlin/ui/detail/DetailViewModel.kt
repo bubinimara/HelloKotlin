@@ -21,57 +21,68 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class DetailViewModel @Inject constructor(val dataRepository: DataRepository): ViewModel() {
+    companion object{
+        private const val TAG ="DetailViewModel"
+    }
 
+    // the list movies to show
     private val _movies = MutableLiveData<List<Movie>>()
     val movies:LiveData<List<Movie>> = _movies
 
-    // when data is loading ... view should show progress
-    private val _isLoadin = MutableLiveData<Boolean>()
-    val isLoadin:LiveData<Boolean> = _isLoadin
+    // when data is loading
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading:LiveData<Boolean> = _isLoading
 
+    // if an error occur
     private val _eventError = MutableLiveData<Event<Int>>()
     val eventError:LiveData<Event<Int>> =_eventError
 
+    // which is the position of the current movie
     private val _eventSelectedMoviePosition = MutableLiveData<Event<Int>>()
     val eventSelectedMoviePosition:LiveData<Event<Int>> = _eventSelectedMoviePosition
 
+    // load once - just at start up
     private var shouldLoad = true
 
-
     fun load(id:Int?) {
-         viewModelScope.launch{
-             dataRepository.getMovies().collect {
-                 _isLoadin.value = it is Resource.Loading // never load because it came from db!
-                 when(it){
-                     is Resource.Error -> _eventError.value = Event(R.string.error_unknow)
-                     is Resource.Loading -> {}
-                     is Resource.Success -> {
-                         it.data?.let { movies ->
-                             onDataLoaded(movies, id)
-                         }
-                     }
-                 }
+        if(!shouldLoad){
+            // load once
+            return
+        }
+        shouldLoad = false
+        viewModelScope.launch{
+            dataRepository.getMovies().collect {
+                _isLoading.value = it is Resource.Loading // never load because it came from db!
+                when(it){
+                    is Resource.Error -> _eventError.value = Event(R.string.error_unknow)
+                    is Resource.Loading -> {}
+                    is Resource.Success -> {
+                        onDataLoaded(it.data,id)
+                    }
+                }
             }
         }
     }
 
-    private fun onDataLoaded(data: List<Movie>, id: Int?) {
-        if(shouldLoad) {
-            _movies.value = data // todo: check why it work??
-            shouldLoad = false
-            findItemPosition(data, id)?.let {
-                _eventSelectedMoviePosition.value = it
-            }
+    private fun onDataLoaded(data: List<Movie>?, id: Int?) {
+        val movies = data ?: emptyList()
+        _movies.value = movies
+        shouldLoad = false
+        findItemPosition(movies, id)?.let {
+            _eventSelectedMoviePosition.value = it
         }
     }
 
-    private fun findItemPosition(movies: List<Movie>, movieId: Int?): Event<Int>? {
-        movieId?.let {
-            for (i in 0..movies.size ){
-                if(movies[i].id == movieId)
-                    return Event(i)
-            }
+    private fun findItemPosition(movies: List<Movie>?, movieId: Int?): Event<Int>? {
+        if(movies == null || movieId == null){
+            return null
         }
+
+        for (i in 0..movies.size ){
+            if(movies[i].id == movieId)
+                return Event(i)
+        }
+
         return null
     }
 }

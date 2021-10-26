@@ -1,6 +1,7 @@
 package com.example.hellokotlin.ui.detail
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,11 @@ import com.example.hellokotlin.data.Resource
 import com.example.hellokotlin.data.model.Movie
 import com.example.hellokotlin.databinding.FragmentDetailBinding
 import com.example.hellokotlin.ui.adapter.DetailStateAdapter
+import com.example.hellokotlin.ui.util.makeMeInvisible
+import com.example.hellokotlin.ui.util.makeMeVisible
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlin.math.log
 
 @AndroidEntryPoint
 class DetailFragment : Fragment() {
@@ -46,11 +50,24 @@ class DetailFragment : Fragment() {
             viewBinding.pager.setCurrentItem( it,false)
         })
 
+        viewModel.isLoading.observe(viewLifecycleOwner, Observer {
+            showProgress(it)
+        })
         viewModel.eventError.observe(viewLifecycleOwner, EventObserver { resString->
             Snackbar.make(viewBinding.root,resString,Snackbar.LENGTH_LONG).show()
         })
 
         viewModel.load(movieId)
+    }
+
+    private fun showProgress(shouldShow: Boolean) {
+        if(shouldShow){
+            viewBinding.progressBar.makeMeVisible()
+            viewBinding.pager.makeMeInvisible()
+        }else{
+            viewBinding.progressBar.makeMeInvisible()
+            viewBinding.pager.makeMeVisible()
+        }
     }
 
 }

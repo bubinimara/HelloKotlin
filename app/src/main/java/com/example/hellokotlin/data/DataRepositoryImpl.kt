@@ -32,14 +32,11 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* GLOBAL ***************************/
     /********************************************************/
 
-    override suspend fun configuration(): Flow<Resource<ConfigurationResponse>> {
-        return flow {
-            emit(Resource.Loading())
-            emit(Resource.Success(apiService.configuration()))
-        }.catch {
-            emit(Resource.Error())
-        }.flowOn(Dispatchers.IO)
+    // TODO: Add chache
+    override suspend fun configuration(): ConfigurationResponse {
+        return apiService.configuration()
     }
+
     /********************************************************/
     /********************* LOGIN ****************************/
     /********************************************************/

@@ -1,6 +1,5 @@
 package com.example.hellokotlin.ui.adapter
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,13 +8,10 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
-import com.example.hellokotlin.data.util.AppUtils.ImageUtils
+import com.example.hellokotlin.data.network.ImageLoader
 import com.example.hellokotlin.ui.util.RateUtil
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 /**
@@ -48,11 +44,13 @@ class MovieAdapter(val listener: AdapterClickListener<Movie>? = null):ListAdapte
             }
 
 
-            val imageUrlForMovie = ImageUtils.getImageUrlForMovie(movie)
+            ImageLoader.load(movie,image)
+/*
             Glide.with(itemView)
                 .load(imageUrlForMovie)
                 .centerCrop()
                 .into(image)
+*/
         }
     }
 

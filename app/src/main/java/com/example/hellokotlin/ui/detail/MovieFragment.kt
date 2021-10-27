@@ -7,10 +7,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.bumptech.glide.Glide
 import com.example.hellokotlin.R
 import com.example.hellokotlin.data.model.Movie
-import com.example.hellokotlin.data.util.AppUtils
+import com.example.hellokotlin.data.network.ImageLoader
 import com.example.hellokotlin.databinding.FragmentMovieBinding
 import com.example.hellokotlin.ui.dialog.RateDialogFragment
 import com.example.hellokotlin.ui.util.RateUtil
@@ -81,11 +80,7 @@ class MovieFragment : Fragment() {
             }
         }
         viewBinding.description.text = movie.overview
-        Glide.with(viewBinding.image)
-            .load(AppUtils.ImageUtils.getImageUrlForMovie(movie))
-            .into(viewBinding.image)
-
-
+        ImageLoader.load(movie,viewBinding.image)
     }
 
     override fun onDestroyView() {

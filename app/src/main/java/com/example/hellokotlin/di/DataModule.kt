@@ -8,7 +8,6 @@ import com.example.hellokotlin.data.session.SessionManager
 import com.example.hellokotlin.data.session.SessionManagerImpl
 import com.example.hellokotlin.data.network.NetworkServices
 import com.example.hellokotlin.data.network.cache.CacheManager
-import com.example.hellokotlin.data.util.AppUtils
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -48,11 +47,6 @@ class DataModule {
         return DataRepositoryImpl(networkServices.apiService,sessionManager,cacheManager)
     }
 
-    @Provides
-    @Singleton
-    fun provideImageUtil(dataRepository: DataRepository):AppUtils{
-        return AppUtils(dataRepository)
-    }
 
     @Provides
     @Singleton

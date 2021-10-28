@@ -13,6 +13,8 @@ import com.example.hellokotlin.data.network.model.RateRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 /**
@@ -41,9 +43,10 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
     /********************* LOGIN ****************************/
     /********************************************************/
     override suspend fun loadLastSession():Flow<Resource<User>>{
-        return flow <Resource<User>>{
+        return flow {
+            emit(Resource.Loading())
             val session = sessionManager.loadSession()
-            var user:User ?= null
+            var user:User? = null
             if(session.isValid()){
                 user = User(name = session.username)
             }
@@ -66,8 +69,12 @@ class DataRepositoryImpl @Inject constructor(private val apiService:ApiService,
                 sessionManager.storeSession(s)
                 emit(Resource.Success(User(name = username)))
             }
-        }.catch {
-            emit(Resource.Error())
+        }.catch { e->
+            when(e) {
+                is IOException -> emit(Resource.Error(Resource.Error.ErrorCode.NETWORK_ERROR))
+                is HttpException -> emit(Resource.Error(Resource.Error.ErrorCode.INVALID_USERNAME_OR_PASSWORD))
+                else -> emit(Resource.Error())
+            }
         }.flowOn((Dispatchers.IO))
     }
 
